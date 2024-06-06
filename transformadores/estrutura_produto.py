@@ -14,6 +14,8 @@ def unico(produto):
         "custo": float(produto["produto"]["precoCusto"]) if 'precoCusto' in produto['produto'].keys()
                                                            and produto['produto']['precoCusto'] is not None else 'vazio',
         "fornecedor": produto["produto"].get("fornecedor", None),
+        "data_inclusao": produto["produto"]["dataInclusao"],
+        "data_alteracao": produto["produto"].get("dataAlteracao", "sem alteração"),
         "observacoes": produto["produto"]["observacoes"],
         "grupo_produto": produto["produto"]["grupoProduto"]
     }

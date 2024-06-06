@@ -29,9 +29,11 @@ def todos_os_produtos(apikey: str = APIKEY):
 
 def todos_os_pedidos(apikey: str = APIKEY):
     pedidos = []
-    for i in count(1, step=1):
+    filtro = 'dataEmissao[01/01/2024 TO 31/12/2024]'
+    '''for i in count(1, step=1):
         resposta = requests.get(f"https://bling.com.br/Api/v2/pedidos/page={i}/json/",
-                                params={'apikey': apikey}).json()
+                                params={'apikey': apikey,
+                                        'filters': filtro}).json()
         if 'erros' in resposta['retorno'].keys():
             codigo_do_erro = resposta['retorno']['erros'][0]['erro']['cod']
             if codigo_do_erro == 14:
@@ -39,10 +41,11 @@ def todos_os_pedidos(apikey: str = APIKEY):
         else:
             pedidos += resposta['retorno']['pedidos']
             print(f'Página {i} adicionada.\n')
-
-    '''resposta = requests.get(f"https://bling.com.br/Api/v2/pedidos/page=1/json/",
-                                params={'apikey': apikey}).json()
-    pedidos += resposta['retorno']['pedidos']'''
+'''
+    resposta = requests.get(f"https://bling.com.br/Api/v2/pedidos/page=1/json/",
+                                params={'apikey': apikey,
+                                        'filters': filtro}).json()
+    pedidos += resposta['retorno']['pedidos']
 
     print('Pedidos extraídos.\n')
 
@@ -71,6 +74,15 @@ def todos_os_pedidos(apikey: str = APIKEY):
         print(f"Failed to retrieve data: {response.status_code}")'''
 
     return pedidos
+
+
+def todas_as_integracoes_lojas_virtuais(apikey: str = APIKEY):
+    lojas = []
+
+    response = requests.options(f"https://bling.com.br/Api/v2/pedidos/page=1/json/",
+                                params={'apikey': apikey}).json()
+
+    return response
 
 
 if __name__ == '__main__':

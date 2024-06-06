@@ -18,7 +18,7 @@ def alimentar_planilha(dados: pd.DataFrame):
 
     spreadsheet = client.open_by_key('19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4')
 
-    sheet = spreadsheet.get_worksheet_by_id(0)
+    sheet = spreadsheet.get_worksheet_by_id(697583497)
 
     set_with_dataframe(sheet, dados)
 

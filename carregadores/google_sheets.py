@@ -18,7 +18,7 @@ def alimentar_planilha(dados: pd.DataFrame):
 
     spreadsheet = client.open_by_key('19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4')
 
-    sheet = spreadsheet.get_worksheet_by_id(697583497)
+    sheet = spreadsheet.get_worksheet_by_id(2064688540)
 
     set_with_dataframe(sheet, dados)
 
@@ -26,6 +26,6 @@ def alimentar_planilha(dados: pd.DataFrame):
 
 
 if __name__ == '__main__':
-    alimentar_planilha(transformadores.estrutura_produto.multiplos(
-        extratores.bling.todos_os_produtos()
-    ))
+    alimentar_planilha(transformadores.estrutura_pedido.agrupando_por_canal(transformadores.estrutura_pedido.multiplos(
+        extratores.bling.todos_os_pedidos()
+    )))

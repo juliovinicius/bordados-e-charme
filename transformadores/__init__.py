@@ -1,1 +1,2 @@
 import transformadores.estrutura_produto
+import transformadores.estrutura_pedido

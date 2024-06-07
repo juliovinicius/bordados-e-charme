@@ -29,8 +29,8 @@ def todos_os_produtos(apikey: str = APIKEY):
 
 def todos_os_pedidos(apikey: str = APIKEY):
     pedidos = []
-    filtro = 'dataEmissao[01/01/2024 TO 31/12/2024]'
-    '''for i in count(1, step=1):
+    filtro = 'dataEmissao[01/04/2024 TO 31/12/2024]'
+    for i in count(1, step=1):
         resposta = requests.get(f"https://bling.com.br/Api/v2/pedidos/page={i}/json/",
                                 params={'apikey': apikey,
                                         'filters': filtro}).json()
@@ -40,12 +40,13 @@ def todos_os_pedidos(apikey: str = APIKEY):
                 break
         else:
             pedidos += resposta['retorno']['pedidos']
-            print(f'Página {i} adicionada.\n')
-'''
-    resposta = requests.get(f"https://bling.com.br/Api/v2/pedidos/page=1/json/",
+            if i in (100, 200, 300, 400, 500, 600, 700, 800):
+                print(f'Página {i} adicionada.\n')
+
+    '''resposta = requests.get(f"https://bling.com.br/Api/v2/pedidos/page=1/json/",
                                 params={'apikey': apikey,
                                         'filters': filtro}).json()
-    pedidos += resposta['retorno']['pedidos']
+    pedidos += resposta['retorno']['pedidos']'''
 
     print('Pedidos extraídos.\n')
 

@@ -154,5 +154,57 @@ def contatos_gerais():
     return resposta
 
 
+def ler_nota_fiscal(id_nota):
+    access_token = get_bling_access_token()
+    dados_da_nota = requests.get(
+        url=f'{url_padrao}/nfe/{id_nota}',
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+    ).json()
+    tipo_da_nota = dados_da_nota['data']['tipo']
+    contato_da_nota = dados_da_nota['data']['contato']
+    numero_da_nota = dados_da_nota['data']['numero']
+    print(f'tipo da nota: {tipo_da_nota}\ncontato da nota: {contato_da_nota}')
+
+    return dados_da_nota, tipo_da_nota, contato_da_nota, numero_da_nota
+
+
+def alterar_nota_fiscal(id_nota):
+    access_token = get_bling_access_token()
+    datahora_atual = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    print(datahora_atual)
+
+    dados_da_nota, tipo_da_nota, contato_da_nota, numero_da_nota = ler_nota_fiscal(id_nota)
+    contato_da_nota['tipoPessoa'] = 'J'
+    contato_da_nota['contribuinte'] = 9
+    print(f'contato da nota: {contato_da_nota}')
+
+    response = requests.put(url=f'{url_padrao}/nfe/{id_nota}',
+                            headers={
+                                'Authorization': f'Bearer {access_token}'
+                            },
+                            json={
+                                'tipo': tipo_da_nota,
+                                'numero': numero_da_nota,
+                                'dataOperacao': datahora_atual,
+                                'contato': contato_da_nota,
+                                'itens': [
+                                    {
+                                        'codigo': 'IZ0001'
+                                    },
+                                    {
+                                        'codigo': 'PE0441'
+                                    },
+                                    {
+                                        'codigo': 'CD1411-10'
+                                    }
+                                ]
+                            })
+
+    return response
+
+
 if __name__ == '__main__':
-    obter_pedido(20978032803)
+    ler_nota_fiscal(20995192544)
+    alterar_nota_fiscal(20995192544)

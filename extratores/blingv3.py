@@ -197,7 +197,10 @@ def alterar_nota_fiscal(id_nota):
                                         'codigo': 'PE0441'
                                     },
                                     {
-                                        'codigo': 'CD1411-10'
+                                        'codigo': 'CD1411-10',
+                                        'quantidade': 3,
+                                        'valor': 1.1,
+                                        'unidade': 'un'
                                     }
                                 ]
                             })

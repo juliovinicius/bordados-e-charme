@@ -2,15 +2,25 @@ import base64
 import pickle
 from datetime import datetime, timedelta
 from itertools import count
+import gspread
+import pandas as pd
+from oauth2client.service_account import ServiceAccountCredentials
 
 import requests
 from pathlib import Path
 
 
 CAMINHO_BLING_ACCESS_TOKEN = Path(__file__).parent.parent / "cache" / "bling_v3_access_token.b"
+CAMINHO_PARA_CREDENCIAIS_DO_SHEETS = Path(__file__).parent.parent / "credenciais" / "chave-google-sheets.json"
 client_id = '6a98683078ddd386e7702e995261f604ddca8a72'
 client_secret = '64e8d1ad698d75e3e1f40e6d94773b11417b4580d961bbdb292dcd5c3b3a'
 url_padrao = 'https://bling.com.br/Api/v3'
+
+scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+credentials = ServiceAccountCredentials.from_json_keyfile_name(CAMINHO_PARA_CREDENCIAIS_DO_SHEETS, scope)
+client = gspread.authorize(credentials)
+
+s = client.open_by_url('https://docs.google.com/spreadsheets/d/19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4/edit?gid=378688497#gid=378688497')
 
 
 def get_bling_access_token():
@@ -170,7 +180,20 @@ def ler_nota_fiscal(id_nota):
     return dados_da_nota, tipo_da_nota, contato_da_nota, numero_da_nota
 
 
-def alterar_nota_fiscal(id_nota):
+def ler_planilha(url, id):
+    planilha = client.open_by_key(url).get_worksheet_by_id(id)
+    dados = planilha.get("B5:E")
+
+    df = pd.DataFrame(dados)
+    df.columns = df.iloc[0]
+    df = df[1:].reset_index(drop=True)
+    df['valor'] = df['valor'].str.replace(',','.')
+    df = df.to_dict(orient="records")
+
+    return df
+
+
+def alterar_nota_fiscal(id_nota, url_da_planilha, id_da_planilha):
     access_token = get_bling_access_token()
     datahora_atual = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     print(datahora_atual)
@@ -179,6 +202,8 @@ def alterar_nota_fiscal(id_nota):
     contato_da_nota['tipoPessoa'] = 'J'
     contato_da_nota['contribuinte'] = 9
     print(f'contato da nota: {contato_da_nota}')
+
+    itens_a_colocar_na_nota = ler_planilha(url_da_planilha, id_da_planilha)
 
     response = requests.put(url=f'{url_padrao}/nfe/{id_nota}',
                             headers={
@@ -189,25 +214,15 @@ def alterar_nota_fiscal(id_nota):
                                 'numero': numero_da_nota,
                                 'dataOperacao': datahora_atual,
                                 'contato': contato_da_nota,
-                                'itens': [
-                                    {
-                                        'codigo': 'IZ0001'
-                                    },
-                                    {
-                                        'codigo': 'PE0441'
-                                    },
-                                    {
-                                        'codigo': 'CD1411-10',
-                                        'quantidade': 3,
-                                        'valor': 1.1,
-                                        'unidade': 'un'
-                                    }
-                                ]
+                                'itens': itens_a_colocar_na_nota
                             })
 
     return response
 
 
 if __name__ == '__main__':
-    ler_nota_fiscal(20995192544)
-    alterar_nota_fiscal(20995192544)
+    #ler_nota_fiscal(21243252124)
+    alterar_nota_fiscal(21243252124,
+                        '19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',
+                        378688497)
+    #ler_planilha('19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',378688497)

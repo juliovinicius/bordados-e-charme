@@ -20,8 +20,6 @@ scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/au
 credentials = ServiceAccountCredentials.from_json_keyfile_name(CAMINHO_PARA_CREDENCIAIS_DO_SHEETS, scope)
 client = gspread.authorize(credentials)
 
-s = client.open_by_url('https://docs.google.com/spreadsheets/d/19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4/edit?gid=378688497#gid=378688497')
-
 
 def get_bling_access_token():
     if CAMINHO_BLING_ACCESS_TOKEN.exists():
@@ -188,6 +186,7 @@ def ler_planilha(url, id):
     df.columns = df.iloc[0]
     df = df[1:].reset_index(drop=True)
     df['valor'] = df['valor'].str.replace(',','.')
+    df['codigo'] = df['codigo'].str.upper()
     df = df.to_dict(orient="records")
 
     return df

@@ -1,2 +1,3 @@
 import transformadores.estrutura_produto
 import transformadores.estrutura_pedido
+import transformadores.estrutura_contas_a_receber

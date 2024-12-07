@@ -72,7 +72,7 @@ def multiplas_contas(apikey, caminho_parquet):
     dados_contas_a_receber, razao_social, apikey, tipo = dados_recebimento
 
     contas = []
-    limite = 5
+    limite = 10
     i, j = 1, 1
 
     print('Iniciando leitura de contas a receber.')

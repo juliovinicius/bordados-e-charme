@@ -70,7 +70,7 @@ def conta_a_receber(id_conta, apikey):
 def contas_a_pagar(apikey):
     print('Extraindo contas a pagar.')
     razao_social = info_conta(apikey)
-    data_ini_emissao = '01/07/2024'
+    data_ini_emissao = '01/01/2024'
     data_fim_emissao = '31/12/2024'
     contas = []
     for i in count(1, step=1):

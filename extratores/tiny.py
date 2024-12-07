@@ -1,3 +1,5 @@
+import time
+
 import requests
 from itertools import count
 
@@ -25,8 +27,9 @@ def info_conta(apikey):
 
 
 def contas_a_receber(apikey):
+    print('Extraindo contas a receber.')
     razao_social = info_conta(apikey)
-    data_ini_emissao = '01/07/2024'
+    data_ini_emissao = '01/01/2024'
     data_fim_emissao = '31/12/2024'
     contas = []
     for i in count(1, step=1):
@@ -37,13 +40,17 @@ def contas_a_receber(apikey):
 
         response = requests.post(url=url).json()
 
-        if int(response['retorno']['pagina']) <= response['retorno']['numero_paginas']:
-            contas += response['retorno']['contas']
-            print(f'Página {i} adicionada.')
-        else:
+        contas += response['retorno']['contas']
+        print(f'Página {i} adicionada.')
+
+        if int(response['retorno']['pagina']) >= response['retorno']['numero_paginas']:
             break
 
-    return contas, razao_social, apikey
+        time.sleep(2)
+
+    tipo = 'receber'
+
+    return contas, razao_social, apikey, tipo
 
 
 def conta_a_receber(id_conta, apikey):
@@ -60,6 +67,49 @@ def conta_a_receber(id_conta, apikey):
     return conta
 
 
+def contas_a_pagar(apikey):
+    print('Extraindo contas a pagar.')
+    razao_social = info_conta(apikey)
+    data_ini_emissao = '01/07/2024'
+    data_fim_emissao = '31/12/2024'
+    contas = []
+    for i in count(1, step=1):
+        url = (f'https://api.tiny.com.br/api2/contas.pagar.pesquisa.php?token=' +
+               apikey +
+               '&formato=json&'
+               f'&pagina={i}&data_ini_emissao=' + data_ini_emissao + '&data_fim_emissao=' + data_fim_emissao)
+
+        response = requests.post(url=url).json()
+
+        contas += response['retorno']['contas']
+        print(f'Página {i} adicionada.')
+
+        if int(response['retorno']['pagina']) >= response['retorno']['numero_paginas']:
+            break
+
+        time.sleep(2)
+
+    tipo = 'pagar'
+
+    return contas, razao_social, apikey, tipo
+
+
+def conta_a_pagar(id_conta, apikey):
+    url = ('https://api.tiny.com.br/api2/conta.pagar.obter.php?token=' +
+           apikey + '&id=' + id_conta + '&formato=json')
+
+    response = requests.post(url=url).json()
+    if 'codigo_erro' in response['retorno']:
+        print(f'Erro ao acessar conta em busca da categoria.')
+        if response['retorno']['codigo_erro'] == 6:
+            print(f'O limite de requisições foi atingido. Tente novamente em alguns minutos.')
+    conta = response['retorno']['conta']
+
+    return conta
+
+
 if __name__ == '__main__':
     contas_a_receber(apikey1)
     #info_conta(apikey1)
+    #contas_a_pagar(apikey2)
+    #conta_a_pagar('869624779', apikey1)

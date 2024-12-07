@@ -73,6 +73,7 @@ def multiplas_contas(apikey, caminho_parquet):
 
     contas = []
     limite = 10
+    pausa = 5
     i, j = 1, 1
 
     print('Iniciando leitura de contas a receber.')
@@ -87,7 +88,7 @@ def multiplas_contas(apikey, caminho_parquet):
                 contas.append(conta_unica(conta, razao_social, apikey, tipo))
                 print(f'Conta {i} substituída no DataFrame.')
                 i += 1
-                time.sleep(3)
+                time.sleep(pausa)
                 if i == limite:
                     print('Limite de execução atingido.')
                     break
@@ -99,7 +100,7 @@ def multiplas_contas(apikey, caminho_parquet):
             contas.append(conta_unica(conta, razao_social, apikey, tipo))
             print(f'Conta {i} adicionada ao DataFrame.')
             i += 1
-            time.sleep(3)
+            time.sleep(pausa)
             if i == limite:
                 print('Limite de execução atingido.')
                 break
@@ -119,7 +120,7 @@ def multiplas_contas(apikey, caminho_parquet):
                 contas.append(conta_unica(conta, razao_social, apikey, tipo))
                 print(f'Conta {j} substituída no DataFrame.')
                 j += 1
-                time.sleep(3)
+                time.sleep(pausa)
                 if j == limite:
                     print('Limite de execução atingido.')
                     break
@@ -131,7 +132,7 @@ def multiplas_contas(apikey, caminho_parquet):
             contas.append(conta_unica(conta, razao_social, apikey, tipo))
             print(f'Conta {j} adicionada ao DataFrame.')
             j += 1
-            time.sleep(3)
+            time.sleep(pausa)
             if j == limite:
                 print('Limite de execução atingido.')
                 break

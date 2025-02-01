@@ -94,7 +94,7 @@ def pedidos_gerais():
 
     pedidos = []
     dt = datetime.now()
-    data_inicial = (dt - timedelta(days=180)).strftime('%Y-%m-%d')
+    data_inicial = (dt - timedelta(days=15)).strftime('%Y-%m-%d')
     data_alteracao_inicial = (dt - timedelta(days=1)).strftime('%Y-%m-%d')
 
     for i in count(1, step=1):
@@ -221,7 +221,9 @@ def alterar_nota_fiscal(id_nota, url_da_planilha, id_da_planilha):
 
 if __name__ == '__main__':
     #ler_nota_fiscal(21243252124)
-    alterar_nota_fiscal(21243252124,
+    '''alterar_nota_fiscal(21243252124,
                         '19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',
-                        378688497)
+                        378688497)'''
     #ler_planilha('19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',378688497)
+    #pedidos_gerais()
+    obter_pedido(22125384426)

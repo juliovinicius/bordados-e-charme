@@ -21,6 +21,7 @@ def conta_unica(conta, razao_social, apikey, tipo):
         'CATEGORIA': categoria['categoria'],
         'EMISSÃO': conta['conta']['data_emissao'],
         'VENCIMENTO': conta['conta']['data_vencimento'],
+        'LIQUIDAÇÃO': categoria['liquidacao'] if 'liquidacao' in categoria else None,
         'VALOR': float(conta['conta']['valor']),
         'SALDO': float(conta['conta']['saldo']),
         'SITUAÇÃO': conta['conta']['situacao']
@@ -29,7 +30,7 @@ def conta_unica(conta, razao_social, apikey, tipo):
     return dados_da_conta
 
 
-def multiplas_contas(apikey, caminho_parquet):
+def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
     if caminho_parquet:
         try:
             parquet_existente = pd.read_parquet(caminho_parquet)
@@ -47,6 +48,7 @@ def multiplas_contas(apikey, caminho_parquet):
                 'CATEGORIA',
                 'EMISSÃO',
                 'VENCIMENTO',
+                'LIQUIDAÇÃO',
                 'VALOR',
                 'SALDO',
                 'SITUAÇÃO'])
@@ -62,6 +64,7 @@ def multiplas_contas(apikey, caminho_parquet):
             'CATEGORIA',
             'EMISSÃO',
             'VENCIMENTO',
+            'LIQUIDAÇÃO',
             'VALOR',
             'SALDO',
             'SITUAÇÃO'
@@ -72,7 +75,7 @@ def multiplas_contas(apikey, caminho_parquet):
     dados_contas_a_receber, razao_social, apikey, tipo = dados_recebimento
 
     contas = []
-    limite = 10
+    limite = 5
     pausa = 5
     i, j = 1, 1
 
@@ -84,7 +87,7 @@ def multiplas_contas(apikey, caminho_parquet):
             if registros_existentes[chave] != saldo:
                 print(f'Conta {chave} saldo atualizado de {registros_existentes[chave]} para {saldo}. Substituindo.')
                 registros_existentes[chave] = saldo
-                contas = [c for c in contas if (c['id'], c['razao_social']) != chave]
+                contas = [c for c in contas if (c['ID'], c['RAZAO_SOCIAL']) != chave]
                 contas.append(conta_unica(conta, razao_social, apikey, tipo))
                 print(f'Conta {i} substituída no DataFrame.')
                 i += 1
@@ -92,8 +95,8 @@ def multiplas_contas(apikey, caminho_parquet):
                 if i == limite:
                     print('Limite de execução atingido.')
                     break
-            else:
-                print(f'Conta {chave} já existe com o mesmo saldo. Ignorando.')
+            '''else:
+                print(f'Conta {chave} já existe com o mesmo saldo. Ignorando.')'''
         else:
             print(f'Conta {chave} é nova. Adicionando.')
             registros_existentes[chave] = saldo
@@ -116,7 +119,7 @@ def multiplas_contas(apikey, caminho_parquet):
             if registros_existentes[chave] != saldo:
                 print(f'Conta {chave} saldo atualizado de {registros_existentes[chave]} para {saldo}. Substituindo.')
                 registros_existentes[chave] = saldo
-                contas = [c for c in contas if (c['id'], c['razao_social']) != chave]
+                contas = [c for c in contas if (c['ID'], c['RAZAO_SOCIAL']) != chave]
                 contas.append(conta_unica(conta, razao_social, apikey, tipo))
                 print(f'Conta {j} substituída no DataFrame.')
                 j += 1
@@ -124,8 +127,8 @@ def multiplas_contas(apikey, caminho_parquet):
                 if j == limite:
                     print('Limite de execução atingido.')
                     break
-            else:
-                print(f'Conta {chave} já existe com o mesmo saldo. Ignorando.')
+            '''else:
+                print(f'Conta {chave} já existe com o mesmo saldo. Ignorando.')'''
         else:
             print(f'Conta {chave} é nova. Adicionando.')
             registros_existentes[chave] = saldo
@@ -171,5 +174,5 @@ if __name__ == '__main__':
     apikey3 = '6f646fa987f2b6fa2bb8fd50024eba933c6befc0c0d37b395388b4107f34440b'
     apikey4 = '882086a25329f3c81061baa3159f521df591d629aa4a57651b87f6ab180dd6b4'
     apis = [apikey1, apikey2, apikey3, apikey4]
-    #multiplas_contas(apikey1)
+    #multiplas_contas(apikey2)
     multiplas_razoes_sociais(apis)

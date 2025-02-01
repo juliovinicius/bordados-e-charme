@@ -29,14 +29,14 @@ def info_conta(apikey):
 def contas_a_receber(apikey):
     print('Extraindo contas a receber.')
     razao_social = info_conta(apikey)
-    data_ini_emissao = '01/01/2024'
+    data_ini_emissao = '01/10/2024'
     data_fim_emissao = '31/12/2024'
     contas = []
     for i in count(1, step=1):
         url = (f'https://api.tiny.com.br/api2/contas.receber.pesquisa.php?token=' +
                apikey +
                '&formato=json&'
-               f'&pagina={i}&data_ini_emissao=' + data_ini_emissao + '&data_fim_emissao=' + data_fim_emissao)
+               f'&pagina={i}&data_ini_vencimento=' + data_ini_emissao + '&data_fim_vencimento=' + data_fim_emissao)
 
         response = requests.post(url=url).json()
 
@@ -70,14 +70,14 @@ def conta_a_receber(id_conta, apikey):
 def contas_a_pagar(apikey):
     print('Extraindo contas a pagar.')
     razao_social = info_conta(apikey)
-    data_ini_emissao = '01/01/2024'
+    data_ini_emissao = '01/10/2024'
     data_fim_emissao = '31/12/2024'
     contas = []
     for i in count(1, step=1):
         url = (f'https://api.tiny.com.br/api2/contas.pagar.pesquisa.php?token=' +
                apikey +
                '&formato=json&'
-               f'&pagina={i}&data_ini_emissao=' + data_ini_emissao + '&data_fim_emissao=' + data_fim_emissao)
+               f'&pagina={i}&data_ini_vencimento=' + data_ini_emissao + '&data_fim_vencimento=' + data_fim_emissao)
 
         response = requests.post(url=url).json()
 
@@ -109,7 +109,8 @@ def conta_a_pagar(id_conta, apikey):
 
 
 if __name__ == '__main__':
-    contas_a_receber(apikey1)
+    #contas_a_receber(apikey1)
+    #conta_a_receber('873427495', apikey1)
     #info_conta(apikey1)
     #contas_a_pagar(apikey2)
-    #conta_a_pagar('869624779', apikey1)
+    conta_a_pagar('869624779', apikey1)

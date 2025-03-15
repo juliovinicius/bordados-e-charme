@@ -75,7 +75,7 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
     dados_contas_a_receber, razao_social, apikey, tipo = dados_recebimento
 
     contas = []
-    limite = 5
+    limite = 100
     pausa = 5
     i, j = 1, 1
 
@@ -173,6 +173,8 @@ if __name__ == '__main__':
     apikey2 = 'be5001dee4cad6ed552b50096dd022b132bf209417c5469b8360f395272cd74c'
     apikey3 = '6f646fa987f2b6fa2bb8fd50024eba933c6befc0c0d37b395388b4107f34440b'
     apikey4 = '882086a25329f3c81061baa3159f521df591d629aa4a57651b87f6ab180dd6b4'
-    apis = [apikey1, apikey2, apikey3, apikey4]
+    apikey5 = 'dede5c75ea14c62541f2896a93b323baac894cb5655957bb6770cae4037f7319'
+    apikey6 = '3d4c4e3432ae1d59fdf6671d195efaee373f5d5f6105440bbfdaf49f52429299'
+    apis = [apikey1, apikey2, apikey3, apikey4, apikey5, apikey6]
     #multiplas_contas(apikey2)
     multiplas_razoes_sociais(apis)

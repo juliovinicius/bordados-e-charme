@@ -48,7 +48,7 @@ def contas_a_receber(apikey):
         if int(response['retorno']['pagina']) >= response['retorno']['numero_paginas']:
             break
 
-        time.sleep(2)
+        time.sleep(3)
 
     tipo = 'receber'
 
@@ -89,7 +89,7 @@ def contas_a_pagar(apikey):
         if int(response['retorno']['pagina']) >= response['retorno']['numero_paginas']:
             break
 
-        time.sleep(2)
+        time.sleep(3)
 
     tipo = 'pagar'
 
@@ -111,8 +111,8 @@ def conta_a_pagar(id_conta, apikey):
 
 
 if __name__ == '__main__':
-    contas_a_receber(apikey6)
+    #contas_a_receber(apikey6)
     #conta_a_receber('873427495', apikey1)
     #info_conta(apikey1)
     #contas_a_pagar(apikey2)
-    #conta_a_pagar('869624779', apikey1)
+    conta_a_pagar('928794550', apikey2)

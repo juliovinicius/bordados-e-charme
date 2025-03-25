@@ -219,6 +219,20 @@ def alterar_nota_fiscal(id_nota, url_da_planilha, id_da_planilha):
     return response
 
 
+def obter_produto(numero_do_produto: int):
+    access_token = get_bling_access_token()
+
+    resposta = requests.get(
+        url=f'{url_padrao}/produtos/{numero_do_produto}',
+        headers={
+            'Authorization': f'Bearer {access_token}'
+        }
+    ).json()
+    print(f'Requisição concluída para o produto de id {numero_do_produto}.')
+
+    return resposta
+
+
 if __name__ == '__main__':
     #ler_nota_fiscal(21243252124)
     '''alterar_nota_fiscal(21243252124,
@@ -226,4 +240,5 @@ if __name__ == '__main__':
                         378688497)'''
     #ler_planilha('19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',378688497)
     #pedidos_gerais()
-    obter_pedido(22125384426)
+    #obter_pedido(22162283023)
+    obter_produto(15812370859)

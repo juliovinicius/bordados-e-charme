@@ -20,9 +20,9 @@ def conta_unica(conta, razao_social, apikey, tipo):
         'CLIENTE': conta['conta']['nome_cliente'],
         'HISTORICO': conta['conta']['historico'],
         'CATEGORIA': categoria['categoria'],
-        'EMISSÃO': conta['conta']['data_emissao'],
-        'VENCIMENTO': conta['conta']['data_vencimento'],
-        'LIQUIDAÇÃO': categoria['liquidacao'] if 'liquidacao' in categoria else None,
+        'EMISSÃO': pd.to_datetime(conta['conta']['data_emissao'], format='%d/%m/%Y'),
+        'VENCIMENTO': pd.to_datetime(conta['conta']['data_vencimento'], format='%d/%m/%Y'),
+        'LIQUIDAÇÃO': pd.to_datetime(categoria['liquidacao'], format='%d/%m/%Y') if 'liquidacao' in categoria else None,
         'VALOR': float(conta['conta']['valor']),
         'SALDO': float(conta['conta']['saldo']),
         'SITUAÇÃO': conta['conta']['situacao'],
@@ -83,7 +83,7 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
     dados_contas_a_receber, razao_social, apikey, tipo = dados_recebimento
 
     contas = []
-    limite = 801
+    limite = 3
     pausa = 3
     i, j = 1, 1
     data_referencia = pd.Timestamp(date.today().replace(day=1)) - pd.DateOffset(months=1)

@@ -34,6 +34,7 @@ def get_bling_access_token():
 
         credentials = f"{client_id}:{client_secret}"
         encoded_credentials = base64.b64encode(credentials.encode('utf-8')).decode('utf-8')
+        print(f'1º {credentials}\n\n2º {encoded_credentials}')
 
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -241,4 +242,5 @@ if __name__ == '__main__':
     #ler_planilha('19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',378688497)
     #pedidos_gerais()
     #obter_pedido(22162283023)
-    obter_produto(15812370859)
+    #obter_produto(15812370859)
+    get_bling_access_token()

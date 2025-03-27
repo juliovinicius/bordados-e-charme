@@ -53,6 +53,7 @@ def redirect():
     # Encode client_id and client_secret for Basic Authentication
     client_credentials = f"{client_id}:{client_secret}"
     encoded_credentials = base64.b64encode(client_credentials.encode()).decode()
+    print(f'1º {client_credentials}\n\n2º {encoded_credentials}')
 
     headers = {
         'Authorization': f'Basic {encoded_credentials}',

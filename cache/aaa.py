@@ -15,5 +15,17 @@ def teste():
     return base
 
 
+def transformando_vencimento():
+    base = pd.read_parquet(CAMINHO_BASE)
+
+    base['VENCIMENTO'] = pd.to_datetime(base['VENCIMENTO'], format='%d/%m/%Y', errors='coerce')
+    base['EMISSÃO'] = pd.to_datetime(base['EMISSÃO'], format='%d/%m/%Y', errors='coerce')
+    base['LIQUIDAÇÃO'] = pd.to_datetime(base['LIQUIDAÇÃO'], format='%d/%m/%Y', errors='coerce')
+
+    base.to_parquet(CAMINHO_BASE, index=False)
+
+    return base
+
+
 if __name__ == '__main__':
-    teste()
+    transformando_vencimento()

@@ -83,7 +83,7 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
     dados_contas_a_receber, razao_social, apikey, tipo = dados_recebimento
 
     contas = []
-    limite = 3
+    limite = 201
     pausa = 3
     i, j = 1, 1
     data_referencia = pd.Timestamp(date.today().replace(day=1)) - pd.DateOffset(months=1)
@@ -180,9 +180,9 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
                 break
 
     if i < limite:
-        print('Não há mais contas a receber.')
+        print(f'Não há mais contas a receber. {i-1} contas foram adicionadas/atualizadas.')
     if j < limite:
-        print('Não há mais contas a pagar.')
+        print(f'Não há mais contas a pagar. {j-1} contas foram adicionadas/atualizadas.')
 
     contas_novas = pd.DataFrame(contas,columns=[
         'RAZAO_SOCIAL',
@@ -265,6 +265,6 @@ if __name__ == '__main__':
     apikey4 = '882086a25329f3c81061baa3159f521df591d629aa4a57651b87f6ab180dd6b4'
     apikey5 = 'dede5c75ea14c62541f2896a93b323baac894cb5655957bb6770cae4037f7319'
     apikey6 = '3d4c4e3432ae1d59fdf6671d195efaee373f5d5f6105440bbfdaf49f52429299'
-    apis = [apikey1, apikey2, apikey3, apikey4, apikey5, apikey6]
+    apis = [apikey1, apikey3, apikey4, apikey5, apikey6, apikey2]
     #multiplas_contas(apikey2)
     multiplas_razoes_sociais(apis)

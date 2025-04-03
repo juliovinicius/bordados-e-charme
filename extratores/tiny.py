@@ -31,8 +31,8 @@ def info_conta(apikey):
 def contas_a_receber(apikey):
     print('Extraindo contas a receber.')
     razao_social = info_conta(apikey)
-    data_ini_emissao = '01/06/2024'
-    data_fim_emissao = '30/06/2025'
+    data_ini_emissao = '01/12/2024'
+    data_fim_emissao = '30/07/2025'
     contas = []
     for i in count(1, step=1):
         url = (f'https://api.tiny.com.br/api2/contas.receber.pesquisa.php?token=' +
@@ -72,8 +72,8 @@ def conta_a_receber(id_conta, apikey):
 def contas_a_pagar(apikey):
     print('Extraindo contas a pagar.')
     razao_social = info_conta(apikey)
-    data_ini_emissao = '01/06/2024'
-    data_fim_emissao = '30/06/2025'
+    data_ini_emissao = '01/12/2024'
+    data_fim_emissao = '30/08/2025'
     contas = []
     for i in count(1, step=1):
         url = (f'https://api.tiny.com.br/api2/contas.pagar.pesquisa.php?token=' +
@@ -112,7 +112,7 @@ def conta_a_pagar(id_conta, apikey):
 
 if __name__ == '__main__':
     #contas_a_receber(apikey6)
-    #conta_a_receber('873427495', apikey1)
+    conta_a_receber('931868802', apikey2)
     #info_conta(apikey1)
     #contas_a_pagar(apikey2)
-    conta_a_pagar('928794550', apikey2)
+    #conta_a_pagar('928794550', apikey2)

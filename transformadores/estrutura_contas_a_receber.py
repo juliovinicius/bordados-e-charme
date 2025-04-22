@@ -9,7 +9,7 @@ import fastparquet
 CAMINHO_ARQUIVO_PARQUET = Path(__file__).parent.parent / 'cache' / 'contas.parquet'
 
 
-def conta_unica(conta, razao_social, apikey, tipo):
+def conta_unica(conta, razao_social, apikey, tipo, backup):
     categoria = (extratores.tiny.conta_a_receber(conta['conta']['id'], apikey)
                  if tipo == 'receber'
                  else extratores.tiny.conta_a_pagar(conta['conta']['id'], apikey))
@@ -26,7 +26,8 @@ def conta_unica(conta, razao_social, apikey, tipo):
         'VALOR': float(conta['conta']['valor']),
         'SALDO': float(conta['conta']['saldo']),
         'SITUAÇÃO': conta['conta']['situacao'],
-        'DATA_LEITURA': pd.Timestamp(date.today())
+        'DATA_LEITURA': pd.Timestamp(date.today()),
+        'HISTÓRICO': '' if backup == 'não' else 'BACKUP'
     }
 
     return dados_da_conta
@@ -41,7 +42,8 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
                                      row['RAZAO_SOCIAL']): {
                 'saldo': row['SALDO'],
                 'data_leitura': row['DATA_LEITURA'],
-                'vencimento': pd.to_datetime(row['VENCIMENTO'],format='%d/%m/%Y')
+                'vencimento': pd.to_datetime(row['VENCIMENTO'],format='%d/%m/%Y'),
+                'backup': 'sim' if row['HISTÓRICO'] == 'BACKUP' else 'não'
             } for _, row in parquet_existente.iterrows()}
         except FileNotFoundError:
             print('Parquet de contas anteriores não encontrado, iniciando um novo.')
@@ -58,7 +60,8 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
                 'VALOR',
                 'SALDO',
                 'SITUAÇÃO',
-                'DATA_LEITURA'])
+                'DATA_LEITURA',
+                'HISTÓRICO'])
             registros_existentes = {}
     else:
         print('Caminho parquet não existe.')
@@ -75,7 +78,8 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
             'VALOR',
             'SALDO',
             'SITUAÇÃO',
-            'DATA_LEITURA'
+            'DATA_LEITURA',
+            'HISTÓRICO'
         ])
         registros_existentes = {}
 
@@ -83,7 +87,7 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
     dados_contas_a_receber, razao_social, apikey, tipo = dados_recebimento
 
     contas = []
-    limite = 201
+    limite = 81
     pausa = 3
     i, j = 1, 1
     data_referencia = pd.Timestamp(date.today().replace(day=1)) - pd.DateOffset(months=1)
@@ -99,7 +103,7 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
                 print(f'Conta {chave} saldo atualizado de {registros_existentes[chave]['saldo']} para {saldo}. Substituindo.')
                 registros_existentes[chave]['saldo'] = saldo
                 contas = [c for c in contas if (c['ID'], c['RAZAO_SOCIAL']) != chave]
-                contas.append(conta_unica(conta, razao_social, apikey, tipo))
+                contas.append(conta_unica(conta, razao_social, apikey, tipo, backup='não'))
                 print(f'Conta {i} substituída no DataFrame.')
                 i += 1
                 time.sleep(pausa)
@@ -113,19 +117,31 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
                 #print(f'Conta {chave} já existe com o mesmo saldo. Ignorando.')
                 print(f'Conta {chave} de vencimento {registros_existentes[chave]['vencimento']} já existe com o mesmo saldo. Inserindo/atualizando leitura.')
                 contas = [c for c in contas if (c['ID'], c['RAZAO_SOCIAL']) != chave]
-                contas.append(conta_unica(conta, razao_social, apikey, tipo))
+                contas.append(conta_unica(conta, razao_social, apikey, tipo, backup='não'))
                 print(f'Conta {i} com leitura atualizada no DataFrame.')
                 i += 1
                 time.sleep(pausa)
                 if i == limite:
                     print('Limite de execução atingido.')
                     break
+            if (registros_existentes[chave]['saldo'] == saldo
+                    and registros_existentes[chave]['vencimento'] < data_referencia
+                    and registros_existentes[chave]['backup'] == 'não'):
+                print(f'Conta {chave} de vencimento {registros_existentes[chave]['vencimento']} está sendo lida para backup.')
+                contas =[c for c in contas if (c['ID'], c['RAZAO_SOCIAL']) != chave]
+                contas.append(conta_unica(conta, razao_social, apikey, tipo, backup='sim'))
+                print(f'Conta {i} com leitura atualizada no DataFrame.')
+                i += 1
+                time.sleep(pausa)
+                if i == limite:
+                    print('Limite de execução atingido.')
+                break
             '''else:
                 print(f'Conta já atualizada')'''
         else:
             print(f'Conta {chave} é nova. Adicionando.')
             #registros_existentes[chave]['saldo'] = saldo
-            contas.append(conta_unica(conta, razao_social, apikey, tipo))
+            contas.append(conta_unica(conta, razao_social, apikey, tipo, backup='não'))
             print(f'Conta {i} adicionada ao DataFrame.')
             i += 1
             time.sleep(pausa)
@@ -145,7 +161,7 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
                 print(f'Conta {chave} saldo atualizado de {registros_existentes[chave]['saldo']} para {saldo}. Substituindo.')
                 registros_existentes[chave]['saldo'] = saldo
                 contas = [c for c in contas if (c['ID'], c['RAZAO_SOCIAL']) != chave]
-                contas.append(conta_unica(conta, razao_social, apikey, tipo))
+                contas.append(conta_unica(conta, razao_social, apikey, tipo, backup='não'))
                 print(f'Conta {j} substituída no DataFrame.')
                 j += 1
                 time.sleep(pausa)
@@ -159,7 +175,20 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
                 #print(f'Conta {chave} já existe com o mesmo saldo. Ignorando.')
                 print(f'Conta {chave} já existe com o mesmo saldo. Inserindo/atualizando leitura.')
                 contas = [c for c in contas if (c['ID'], c['RAZAO_SOCIAL']) != chave]
-                contas.append(conta_unica(conta, razao_social, apikey, tipo))
+                contas.append(conta_unica(conta, razao_social, apikey, tipo, backup='não'))
+                print(f'Conta {j} com leitura atualizada no DataFrame.')
+                j += 1
+                time.sleep(pausa)
+                if j == limite:
+                    print('Limite de execução atingido.')
+                    break
+            if (registros_existentes[chave]['saldo'] == saldo
+                    and registros_existentes[chave]['vencimento'] < data_referencia
+                    and registros_existentes[chave]['backup'] == 'não'):
+                #print(f'Conta {chave} já existe com o mesmo saldo. Ignorando.')
+                print(f'Conta {chave} de vencimento {registros_existentes[chave]['vencimento']} está sendo lida para backup.')
+                contas = [c for c in contas if (c['ID'], c['RAZAO_SOCIAL']) != chave]
+                contas.append(conta_unica(conta, razao_social, apikey, tipo, backup='sim'))
                 print(f'Conta {j} com leitura atualizada no DataFrame.')
                 j += 1
                 time.sleep(pausa)
@@ -171,7 +200,7 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
         else:
             print(f'Conta {chave} é nova. Adicionando.')
             #registros_existentes[chave]['saldo'] = saldo
-            contas.append(conta_unica(conta, razao_social, apikey, tipo))
+            contas.append(conta_unica(conta, razao_social, apikey, tipo, backup='não'))
             print(f'Conta {j} adicionada ao DataFrame.')
             j += 1
             time.sleep(pausa)
@@ -197,7 +226,8 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
         'VALOR',
         'SALDO',
         'SITUAÇÃO',
-        'DATA_LEITURA'
+        'DATA_LEITURA',
+        'HISTÓRICO'
     ])
     '''contas_totais = (pd.concat([parquet_existente, contas_novas], ignore_index=True).
                      drop_duplicates(subset=['ID', 'RAZAO_SOCIAL'], keep='last'))'''
@@ -225,7 +255,8 @@ def multiplas_razoes_sociais(apis:list, caminho_parquet=CAMINHO_ARQUIVO_PARQUET)
                 'VALOR',
                 'SALDO',
                 'SITUAÇÃO',
-                'DATA_LEITURA'])
+                'DATA_LEITURA',
+                'HISTÓRICO'])
     else:
         print('Caminho parquet não existe.')
         parquet_existente = pd.DataFrame(columns=[
@@ -241,7 +272,8 @@ def multiplas_razoes_sociais(apis:list, caminho_parquet=CAMINHO_ARQUIVO_PARQUET)
             'VALOR',
             'SALDO',
             'SITUAÇÃO',
-            'DATA_LEITURA'
+            'DATA_LEITURA',
+            'HISTÓRICO'
         ])
     todas_as_contas = pd.DataFrame(parquet_existente)
     i = 1
@@ -252,6 +284,10 @@ def multiplas_razoes_sociais(apis:list, caminho_parquet=CAMINHO_ARQUIVO_PARQUET)
                            drop_duplicates(subset=['ID', 'RAZAO_SOCIAL'], keep='last'))
         i += 1
 
+    todas_as_contas = todas_as_contas.sort_values(
+        by=['RAZAO_SOCIAL', 'TIPO', 'LIQUIDAÇÃO', 'VENCIMENTO'],
+        ascending=[True, True, False, False]
+    )
     todas_as_contas.to_parquet(CAMINHO_ARQUIVO_PARQUET, index=False)
     print(f'Dataframe atualizado em {CAMINHO_ARQUIVO_PARQUET}.')
 

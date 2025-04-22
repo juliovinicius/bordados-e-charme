@@ -1,6 +1,10 @@
+import pandas as pd
+from pathlib import Path
 import requests
 import json
 from itertools import count
+
+CAMINHO_CONTAS = Path(__file__).parent / "cache" / "contas.parquet"
 
 apikey1 = 'd2713e9ab254bee05f94f7d72a2cdc23d2df71e0370aefde2fd7b0b8b1c06338'
 apikey2 = 'be5001dee4cad6ed552b50096dd022b132bf209417c5469b8360f395272cd74c'
@@ -79,9 +83,17 @@ def infoconta(apikey: str):
     return razao_social
 
 
+def acrescentando_backup():
+    base = pd.read_parquet(CAMINHO_CONTAS)
+    base['HISTÓRICO'] = ''
+    base.to_parquet(CAMINHO_CONTAS)
+
+    return base
+
+
 if __name__ == '__main__':
     #teste()
-    teste2('873399173')
+    #teste2('873399173')
     #teste_contas_pagar()
     #infoconta(apikey4)
-
+    acrescentando_backup()

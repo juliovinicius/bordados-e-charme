@@ -31,8 +31,8 @@ def info_conta(apikey):
 def contas_a_receber(apikey):
     print('Extraindo contas a receber.')
     razao_social = info_conta(apikey)
-    data_ini_emissao = '01/12/2024'
-    data_fim_emissao = '30/07/2025'
+    data_ini_emissao = '01/01/2024'
+    data_fim_emissao = '31/07/2024'
     contas = []
     for i in count(1, step=1):
         url = (f'https://api.tiny.com.br/api2/contas.receber.pesquisa.php?token=' +
@@ -41,6 +41,11 @@ def contas_a_receber(apikey):
                f'&pagina={i}&data_ini_vencimento=' + data_ini_emissao + '&data_fim_vencimento=' + data_fim_emissao)
 
         response = requests.post(url=url).json()
+
+        retorno = response.get('retorno', {})
+        if retorno.get('codigo_erro') == 20 or 'contas' not in retorno:
+            print(f'Sem contas a receber para o período. Código de erro: {retorno.get("codigo_erro")}')
+            break
 
         contas += response['retorno']['contas']
         print(f'Página {i} adicionada.')
@@ -72,8 +77,8 @@ def conta_a_receber(id_conta, apikey):
 def contas_a_pagar(apikey):
     print('Extraindo contas a pagar.')
     razao_social = info_conta(apikey)
-    data_ini_emissao = '01/12/2024'
-    data_fim_emissao = '30/08/2025'
+    data_ini_emissao = '01/01/2024'
+    data_fim_emissao = '31/07/2024'
     contas = []
     for i in count(1, step=1):
         url = (f'https://api.tiny.com.br/api2/contas.pagar.pesquisa.php?token=' +
@@ -82,6 +87,11 @@ def contas_a_pagar(apikey):
                f'&pagina={i}&data_ini_vencimento=' + data_ini_emissao + '&data_fim_vencimento=' + data_fim_emissao)
 
         response = requests.post(url=url).json()
+
+        retorno = response.get('retorno', {})
+        if retorno.get('codigo_erro') == 20 or 'contas' not in retorno:
+            print(f'Sem contas a receber para o período. Código de erro: {retorno.get("codigo_erro")}')
+            break
 
         contas += response['retorno']['contas']
         print(f'Página {i} adicionada.')

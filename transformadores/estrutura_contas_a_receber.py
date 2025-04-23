@@ -87,7 +87,7 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
     dados_contas_a_receber, razao_social, apikey, tipo = dados_recebimento
 
     contas = []
-    limite = 81
+    limite = 201
     pausa = 3
     i, j = 1, 1
     data_referencia = pd.Timestamp(date.today().replace(day=1)) - pd.DateOffset(months=1)
@@ -128,14 +128,14 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
                     and registros_existentes[chave]['vencimento'] < data_referencia
                     and registros_existentes[chave]['backup'] == 'não'):
                 print(f'Conta {chave} de vencimento {registros_existentes[chave]['vencimento']} está sendo lida para backup.')
-                contas =[c for c in contas if (c['ID'], c['RAZAO_SOCIAL']) != chave]
+                contas = [c for c in contas if (c['ID'], c['RAZAO_SOCIAL']) != chave]
                 contas.append(conta_unica(conta, razao_social, apikey, tipo, backup='sim'))
                 print(f'Conta {i} com leitura atualizada no DataFrame.')
                 i += 1
                 time.sleep(pausa)
                 if i == limite:
                     print('Limite de execução atingido.')
-                break
+                    break
             '''else:
                 print(f'Conta já atualizada')'''
         else:

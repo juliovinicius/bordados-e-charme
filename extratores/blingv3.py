@@ -181,12 +181,12 @@ def ler_nota_fiscal(id_nota):
 
 def ler_planilha(url, id):
     planilha = client.open_by_key(url).get_worksheet_by_id(id)
-    dados = planilha.get("B5:E")
+    dados = planilha.get("C6:F")
 
     df = pd.DataFrame(dados)
     df.columns = df.iloc[0]
     df = df[1:].reset_index(drop=True)
-    df['valor'] = df['valor'].str.replace(',','.')
+    df['valor'] = df['valor'].str.replace(',', '.')
     df['codigo'] = df['codigo'].str.upper()
     df = df.to_dict(orient="records")
 
@@ -214,7 +214,9 @@ def alterar_nota_fiscal(id_nota, url_da_planilha, id_da_planilha):
                                 'numero': numero_da_nota,
                                 'dataOperacao': datahora_atual,
                                 'contato': contato_da_nota,
-                                'itens': itens_a_colocar_na_nota
+                                'itens': itens_a_colocar_na_nota,
+                                'naturezaOperacao': {'id': 10037290024}, #10037290024 venda 15103342078 transferência
+                                'loja': {'id': 205362589}
                             })
 
     return response
@@ -235,12 +237,12 @@ def obter_produto(numero_do_produto: int):
 
 
 if __name__ == '__main__':
-    #ler_nota_fiscal(21243252124)
-    '''alterar_nota_fiscal(21243252124,
+    #ler_nota_fiscal(22900407270)
+    alterar_nota_fiscal(22729469842,
                         '19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',
-                        378688497)'''
+                        378688497)
     #ler_planilha('19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',378688497)
     #pedidos_gerais()
     #obter_pedido(22162283023)
     #obter_produto(15812370859)
-    get_bling_access_token()
+    #get_bling_access_token()

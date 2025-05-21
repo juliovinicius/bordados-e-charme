@@ -87,7 +87,7 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
     dados_contas_a_receber, razao_social, apikey, tipo = dados_recebimento
 
     contas = []
-    limite = 201
+    limite = 251
     pausa = 3
     i, j = 1, 1
     data_referencia = pd.Timestamp(date.today().replace(day=1)) - pd.DateOffset(months=1)

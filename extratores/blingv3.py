@@ -95,7 +95,7 @@ def pedidos_gerais():
 
     pedidos = []
     dt = datetime.now()
-    data_inicial = (dt - timedelta(days=15)).strftime('%Y-%m-%d')
+    data_inicial = (dt - timedelta(days=3)).strftime('%Y-%m-%d')
     data_alteracao_inicial = (dt - timedelta(days=1)).strftime('%Y-%m-%d')
 
     for i in count(1, step=1):
@@ -236,13 +236,23 @@ def obter_produto(numero_do_produto: int):
     return resposta
 
 
+def ler_situacoes():
+    access_token = get_bling_access_token()
+    resposta = requests.get(url=f'{url_padrao}/situacoes',
+                            headers={
+                                'Authorization': f'Bearer {access_token}'
+                            }).json()
+    return resposta
+
+
 if __name__ == '__main__':
     #ler_nota_fiscal(22900407270)
-    alterar_nota_fiscal(22729469842,
+    '''alterar_nota_fiscal(23218321074,
                         '19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',
-                        378688497)
+                        378688497)'''
     #ler_planilha('19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',378688497)
-    #pedidos_gerais()
-    #obter_pedido(22162283023)
+    pedidos_gerais()
+    #obter_pedido(23233159133)
     #obter_produto(15812370859)
     #get_bling_access_token()
+    #ler_situacoes()

@@ -68,19 +68,22 @@ def agrupando_por_canal(dataframe: pd.DataFrame):
 def pedido_unico(pedido):
     lista_pedido = []
     nomes_das_lojas = {
-        '204408488': 'Amazon FBA Classic - Charme do Detalhe',
-        '203966024': 'Amazon FBA Onsite - Charme do Detalhe',
-        '204036478': 'Amazon DBA - Charme do Detalhe',
-        '203660959': 'Yampi - Filial',
-        '204130790': 'Magazine Luiza',
-        '204038403': 'Mercado Livre - Super Criativo',
-        '204037946': 'Mercado Livre - Mania de Lar',
-        '204177738': 'Mercado Livre - Charme do Detalhe Full',
-        '204021809': 'Mercado Livre - Charme do Detalhe',
-        '204765312': 'Shein',
-        '204347260': 'Shopee - Mania de Lar',
-        '204021184': 'Shopee - Super Criativo',
-        '204021181': 'Shopee - Charme do Detalhe'
+        204408488: 'Amazon FBA Classic - Charme do Detalhe',
+        203966024: 'Amazon FBA Onsite - Charme do Detalhe',
+        204036478: 'Amazon DBA - Charme do Detalhe',
+        203660959: 'Yampi - Filial',
+        204130790: 'Magazine Luiza',
+        204038403: 'Mercado Livre - Super Criativo',
+        204037946: 'Mercado Livre - Mania de Lar',
+        204177738: 'Mercado Livre - Charme do Detalhe Full',
+        204021809: 'Mercado Livre - Charme do Detalhe',
+        204765312: 'Shein',
+        204347260: 'Shopee - Mania de Lar',
+        205428219: 'Shopee - Mania de Lar Full',
+        204021184: 'Shopee - Super Criativo',
+        204021181: 'Shopee - Charme do Detalhe',
+        205324745: 'Mercado Livre - Mania de Lar Full',
+        204996994: 'Loja Virtual Shopify 11:39:44'
     }
     situacoes = {
         24: 'Verificado',
@@ -88,7 +91,9 @@ def pedido_unico(pedido):
         6: 'Em aberto',
         12: 'Cancelado',
         15: 'Em andamento',
-        130276: 'Em troca'
+        130276: 'Em troca',
+        118912: 'China Comunicado Atendimento',
+        464030: 'Verificado Full'
     }
     dados_do_pedido = {
         'id': pedido['id'],
@@ -97,8 +102,8 @@ def pedido_unico(pedido):
         'numeroLoja': pedido['numeroLoja'],
         'loja_id': pedido['loja']['id'],
         'loja': nomes_das_lojas.get(pedido['loja']['id'], f'Loja desconhecida'),
-        'cliente_cpf': pedido['contato']['numeroDocumento'],
-        'cliente_nome': pedido['contato']['nome'],
+        'cpf_cliente': pedido['contato']['numeroDocumento'],
+        'nome_cliente': pedido['contato']['nome'],
         'situação': situacoes.get(pedido['situacao']['id'], f"Situação desconhecida: {pedido['situacao']['id']}"),
         'valor_dos_produtos': pedido['totalProdutos'],
         'valor_do_pedido': pedido['total']
@@ -130,7 +135,8 @@ def pedido_unico(pedido):
             'codigo_item': item['codigo'],
             'descricao_item': item['descricao'],
             'quantidade': item['quantidade'],
-            'unidade': item['unidade']
+            'unidade': item['unidade'],
+            'valor_item': item['valor']
         }
         lista_pedido.append(pedido_completo | detalhe_item)
 
@@ -144,7 +150,11 @@ def multiplos_pedidos(dados):
         print(f'Executando pedido {i} de {len(dados)}')
         pedidos.append(pedido_unico(pedido))
 
-    return pedidos
+    pedidos_lista = [item for sublista in pedidos for item in sublista]
+
+    pedidos_df = pd.DataFrame(pedidos_lista)
+
+    return pedidos_df
 
 
 if __name__ == '__main__':

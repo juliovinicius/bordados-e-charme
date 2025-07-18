@@ -26,8 +26,8 @@ def get_bling_access_token():
         with open(CAMINHO_BLING_ACCESS_TOKEN, 'rb') as token_file:
             bling_access_token_data = pickle.load(token_file)
         if datetime.now() < bling_access_token_data['expires_at']:
-            print(f'O código de acesso armazenado ainda é válido.\n'
-                  f'Código: {bling_access_token_data["access_token"]}.')
+            '''print(f'O código de acesso armazenado ainda é válido.\n'
+                  f'Código: {bling_access_token_data["access_token"]}.')'''
             return bling_access_token_data['access_token']
 
         print('O código de acesso está expirado.\nIniciando processo de atualização.')
@@ -95,8 +95,9 @@ def pedidos_gerais():
 
     pedidos = []
     dt = datetime.now()
-    data_inicial = (dt - timedelta(days=1)).strftime('%Y-%m-%d')
-    data_alteracao_inicial = (dt - timedelta(days=1)).strftime('%Y-%m-%d')
+    data_inicial = (dt - timedelta(days=30)).strftime('%Y-%m-%d')
+    data_alteracao_inicial = (dt - timedelta(days=2)).strftime('%Y-%m-%d')
+    data_alteracao_final = (dt - timedelta(days=21)).strftime('%Y-%m-%d')
 
     for i in count(1, step=1):
         resposta = requests.get(url=f'{url_padrao}/pedidos/vendas',
@@ -107,6 +108,7 @@ def pedidos_gerais():
                                    'pagina': f'{i}',
                                    'dataInicial': data_inicial,
                                    'dataAlteracaoInicial': data_alteracao_inicial
+                                   #,'dataAlteracaoFinal': data_alteracao_final
                                }).json()
 
         pedidos += resposta['data']
@@ -247,12 +249,12 @@ def ler_situacoes():
 
 if __name__ == '__main__':
     #ler_nota_fiscal(22900407270)
-    '''alterar_nota_fiscal(23218321074,
+    alterar_nota_fiscal(23371432757,
                         '19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',
-                        378688497)'''
+                        378688497)
     #ler_planilha('19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',378688497)
     #pedidos_gerais()
-    obter_pedido(23233159133)
-    #obter_produto(15812370859)
+    #obter_pedido(23342593044)
+    #obter_produto(16301552887)
     #get_bling_access_token()
     #ler_situacoes()

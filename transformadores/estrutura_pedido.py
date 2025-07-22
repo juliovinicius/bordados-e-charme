@@ -242,7 +242,7 @@ def multiplos_pedidos(dados):
     checkpoint = 100
 
     for i, pedido in enumerate(dados, 1):
-        print(f'Executando pedido {i} de {len(dados)}')
+        print(f'Executando pedido {i} de {len(dados)}, de número {pedido['numero']}')
 
         try:
             # Checar se o pedido já existe e comparar data
@@ -267,19 +267,16 @@ def multiplos_pedidos(dados):
                     if re.sub(r'\D', '', pedido['contato'].get('numeroDocumento', '')) \
                     else 0
                 pedido_existente = filtro_existente.iloc[0]
+
                 diferenças = []
                 if pedido_existente['numero'] != numero:
                     diferenças.append(f"numero: {pedido_existente['numero']} → {numero}")
-
                 if pedido_existente['valor_dos_produtos'] != total_produtos:
                     diferenças.append(f"valor_dos_produtos: {pedido_existente['valor_dos_produtos']} → {total_produtos}")
-
                 if pedido_existente['valor_do_pedido'] != total:
                     diferenças.append(f"valor_do_pedido: {pedido_existente['valor_do_pedido']} → {total}")
-
                 if pedido_existente['situação'] != situacao:
                     diferenças.append(f"situação: {pedido_existente['situação']} → {situacao}")
-
                 if pedido_existente['cpf_cliente'] != cpf_cliente:
                     diferenças.append(f"cpf_cliente: {pedido_existente['cpf_cliente']} → {cpf_cliente}")
 

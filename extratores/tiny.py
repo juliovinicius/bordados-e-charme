@@ -1,7 +1,9 @@
 import time
-
+from dateutil.relativedelta import relativedelta
+from calendar import monthrange
 import requests
 from itertools import count
+from datetime import date
 
 apikey1 = 'd2713e9ab254bee05f94f7d72a2cdc23d2df71e0370aefde2fd7b0b8b1c06338'
 apikey2 = 'be5001dee4cad6ed552b50096dd022b132bf209417c5469b8360f395272cd74c'
@@ -14,6 +16,17 @@ apis = [apikey1,
         apikey2,
         apikey3,
         apikey4]
+
+hoje = date.today()
+
+# Data inicial: 1º dia de 3 meses atrás
+data_ini = (hoje.replace(day=1) - relativedelta(months=3))
+data_ini_emissao = data_ini.strftime('%d/%m/%Y')
+
+# Data final: último dia de 4 meses à frente
+data_fim = hoje.replace(day=1) + relativedelta(months=4)
+ultimo_dia_fim = monthrange(data_fim.year, data_fim.month)[1]
+data_fim_emissao = data_fim.replace(day=ultimo_dia_fim).strftime('%d/%m/%Y')
 
 
 def info_conta(apikey):
@@ -28,11 +41,9 @@ def info_conta(apikey):
     return razao_social
 
 
-def contas_a_receber(apikey):
+def contas_a_receber(apikey, data_ini_emissao, data_fim_emissao):
     print('Extraindo contas a receber.')
     razao_social = info_conta(apikey)
-    data_ini_emissao = '01/02/2025'
-    data_fim_emissao = '28/02/2025'
     contas = []
     for i in count(1, step=1):
         url = (f'https://api.tiny.com.br/api2/contas.receber.pesquisa.php?token=' +
@@ -74,11 +85,9 @@ def conta_a_receber(id_conta, apikey):
     return conta
 
 
-def contas_a_pagar(apikey):
+def contas_a_pagar(apikey, data_ini_emissao, data_fim_emissao):
     print('Extraindo contas a pagar.')
     razao_social = info_conta(apikey)
-    data_ini_emissao = '01/02/2025'
-    data_fim_emissao = '28/02/2025'
     contas = []
     for i in count(1, step=1):
         url = (f'https://api.tiny.com.br/api2/contas.pagar.pesquisa.php?token=' +
@@ -122,7 +131,7 @@ def conta_a_pagar(id_conta, apikey):
 
 if __name__ == '__main__':
     #contas_a_receber(apikey6)
-    conta_a_receber('931868802', apikey2)
+    #conta_a_receber('942035553', apikey2)
     #info_conta(apikey1)
     #contas_a_pagar(apikey2)
-    #conta_a_pagar('928794550', apikey2)
+    conta_a_pagar('942035553', apikey3)

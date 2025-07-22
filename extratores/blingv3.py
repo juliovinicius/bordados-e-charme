@@ -96,7 +96,7 @@ def pedidos_gerais():
     pedidos = []
     dt = datetime.now()
     data_inicial = (dt - timedelta(days=30)).strftime('%Y-%m-%d')
-    data_alteracao_inicial = (dt - timedelta(days=2)).strftime('%Y-%m-%d')
+    data_alteracao_inicial = (dt - timedelta(days=4)).strftime('%Y-%m-%d')
     data_alteracao_final = (dt - timedelta(days=21)).strftime('%Y-%m-%d')
 
     for i in count(1, step=1):
@@ -117,6 +117,34 @@ def pedidos_gerais():
             break
 
     return pedidos
+
+
+def produtos_gerais():
+    access_token = get_bling_access_token()
+
+    produtos = []
+    dt = datetime.now()
+    data_inicial = (dt - timedelta(days=30)).strftime('%Y-%m-%d')
+    data_alteracao_inicial = (dt - timedelta(days=4)).strftime('%Y-%m-%d')
+    data_alteracao_final = (dt - timedelta(days=21)).strftime('%Y-%m-%d')
+    for i in count(1, step=1):
+        resposta = requests.get(url=f'{url_padrao}/produtos',
+                               headers={
+                                   'Authorization': f'Bearer {access_token}'
+                               },
+                               params={
+                                   'pagina': f'{i}',
+                                   'dataInclusaoInicial': data_inicial,
+                                   'dataAlteracaoInicial': data_alteracao_inicial
+                                   #,'dataAlteracaoFinal': data_alteracao_final
+                               }).json()
+
+        produtos += resposta['data']
+
+        if len(resposta['data']) == 0:
+            break
+
+    return produtos
 
 
 def obter_pedido(numero_do_pedido: int):
@@ -249,12 +277,13 @@ def ler_situacoes():
 
 if __name__ == '__main__':
     #ler_nota_fiscal(22900407270)
-    alterar_nota_fiscal(23371432757,
+    '''alterar_nota_fiscal(23371432757,
                         '19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',
-                        378688497)
+                        378688497)'''
     #ler_planilha('19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',378688497)
     #pedidos_gerais()
     #obter_pedido(23342593044)
     #obter_produto(16301552887)
     #get_bling_access_token()
     #ler_situacoes()
+    produtos_gerais()

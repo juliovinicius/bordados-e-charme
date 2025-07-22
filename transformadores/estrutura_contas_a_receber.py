@@ -4,6 +4,7 @@ import time
 from datetime import date
 from pathlib import Path
 import fastparquet
+from extratores.tiny import data_ini_emissao, data_fim_emissao
 
 
 CAMINHO_ARQUIVO_PARQUET = Path(__file__).parent.parent / 'cache' / 'contas.parquet'
@@ -83,11 +84,11 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
         ])
         registros_existentes = {}
 
-    dados_recebimento = extratores.tiny.contas_a_receber(apikey)
+    dados_recebimento = extratores.tiny.contas_a_receber(apikey, data_ini_emissao, data_fim_emissao)
     dados_contas_a_receber, razao_social, apikey, tipo = dados_recebimento
 
     contas = []
-    limite = 251
+    limite = 601
     pausa = 3
     i, j = 1, 1
     data_referencia = pd.Timestamp(date.today().replace(day=1)) - pd.DateOffset(months=1)
@@ -149,7 +150,7 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
                 print('Limite de execução atingido.')
                 break
 
-    dados_pagamento = extratores.tiny.contas_a_pagar(apikey)
+    dados_pagamento = extratores.tiny.contas_a_pagar(apikey, data_ini_emissao, data_fim_emissao)
     dados_contas_a_pagar, razao_social, apikey, tipo = dados_pagamento
 
     print('Iniciando leitura de contas a pagar.')

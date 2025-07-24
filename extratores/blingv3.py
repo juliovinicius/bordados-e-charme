@@ -5,6 +5,7 @@ from itertools import count
 import gspread
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
+import time
 
 import requests
 from pathlib import Path
@@ -96,7 +97,7 @@ def pedidos_gerais():
     pedidos = []
     dt = datetime.now()
     data_inicial = (dt - timedelta(days=30)).strftime('%Y-%m-%d')
-    data_alteracao_inicial = (dt - timedelta(days=4)).strftime('%Y-%m-%d')
+    data_alteracao_inicial = (dt - timedelta(days=2)).strftime('%Y-%m-%d')
     data_alteracao_final = (dt - timedelta(days=21)).strftime('%Y-%m-%d')
 
     for i in count(1, step=1):
@@ -124,22 +125,24 @@ def produtos_gerais():
 
     produtos = []
     dt = datetime.now()
-    data_inicial = (dt - timedelta(days=30)).strftime('%Y-%m-%d')
-    data_alteracao_inicial = (dt - timedelta(days=4)).strftime('%Y-%m-%d')
-    data_alteracao_final = (dt - timedelta(days=21)).strftime('%Y-%m-%d')
+    data_inicial = (dt - timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S')
+    data_alteracao_inicial = (dt - timedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')
+    data_alteracao_final = (dt + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
     for i in count(1, step=1):
         resposta = requests.get(url=f'{url_padrao}/produtos',
                                headers={
                                    'Authorization': f'Bearer {access_token}'
                                },
                                params={
-                                   'pagina': f'{i}',
-                                   'dataInclusaoInicial': data_inicial,
+                                   'pagina': f'{i}'
+                                   ,'dataInclusaoInicial': data_inicial,
                                    'dataAlteracaoInicial': data_alteracao_inicial
-                                   #,'dataAlteracaoFinal': data_alteracao_final
+                                   ,'dataAlteracaoFinal': data_alteracao_final
                                }).json()
 
         produtos += resposta['data']
+        time.sleep(0.3)
+        print(f'requisição realizada para a página {i}')
 
         if len(resposta['data']) == 0:
             break
@@ -277,13 +280,13 @@ def ler_situacoes():
 
 if __name__ == '__main__':
     #ler_nota_fiscal(22900407270)
-    '''alterar_nota_fiscal(23371432757,
+    '''alterar_nota_fiscal(23421513475,
                         '19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',
                         378688497)'''
     #ler_planilha('19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',378688497)
     #pedidos_gerais()
-    #obter_pedido(23342593044)
-    #obter_produto(16301552887)
+    #obter_pedido(23412477754)
+    obter_produto(15813948283)
     #get_bling_access_token()
     #ler_situacoes()
     produtos_gerais()

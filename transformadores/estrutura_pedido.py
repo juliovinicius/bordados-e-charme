@@ -222,6 +222,100 @@ def pedido_unico(pedido):
     return lista_pedido
 
 
+def pedido_unico_sem_componente(pedido):
+    lista_pedido = []
+    nomes_das_lojas = {
+        204408488: 'Amazon FBA Classic - Charme do Detalhe',
+        203966024: 'Amazon FBA Onsite - Charme do Detalhe',
+        204036478: 'Amazon DBA - Charme do Detalhe',
+        203660959: 'Yampi - Filial',
+        204130790: 'Magazine Luiza',
+        204038403: 'Mercado Livre - Super Criativo',
+        205092745: 'Mercado Livre - Super Criativo Full',
+        204037946: 'Mercado Livre - Mania de Lar',
+        204177738: 'Mercado Livre - Charme do Detalhe Full',
+        204021809: 'Mercado Livre - Charme do Detalhe',
+        204765312: 'Shein',
+        204347260: 'Shopee - Mania de Lar',
+        205428219: 'Shopee - Mania de Lar Full',
+        204021184: 'Shopee - Super Criativo',
+        204021181: 'Shopee - Charme do Detalhe',
+        205324745: 'Mercado Livre - Mania de Lar Full',
+        204996994: 'Loja Virtual Shopify 11:39:44',
+        205007896: 'Charme do Detalhe - SITE',
+        205429935: 'TikTok Shop',
+        0: 'Nenhuma'
+    }
+
+    dados_do_pedido = {
+        'id': pedido['id'],
+        'numero': pedido['numero'],
+        'data': pedido['data'],
+        'numeroLoja': pedido['numeroLoja'],
+        'loja_id': pedido['loja']['id'],
+        'loja': nomes_das_lojas.get(pedido['loja']['id'], f'Loja desconhecida'),
+        'cpf_cliente':
+            int(re.sub(r'\D', '', pedido['contato'].get('numeroDocumento', '')))
+            if re.sub(r'\D', '', pedido['contato'].get('numeroDocumento', ''))
+            else 0,
+        'nome_cliente': pedido['contato']['nome'],
+        'situação': situacoes(pedido['situacao']['id']),
+        'valor_dos_produtos': pedido['totalProdutos'],
+        'valor_do_pedido': pedido['total'],
+        'data_de_atualizacao': datetime.now().replace(microsecond=0)
+    }
+
+    detalhes_do_pedido = extratores.blingv3.obter_pedido(dados_do_pedido['id'])
+    itens = detalhes_do_pedido['data']['itens']
+    print(f'O pedido atual possui {len(itens)} itens.')
+    campos_detalhados = {
+        'observações': detalhes_do_pedido['data']['observacoes'],
+        'observações_internas': detalhes_do_pedido['data']['observacoesInternas'],
+        'desconto': detalhes_do_pedido['data']['desconto']['valor'],
+        'observações_de_pagamento':
+            detalhes_do_pedido['data']['parcelas'][0]['observacoes']
+            if detalhes_do_pedido['data']['parcelas']
+            else '',
+        'forma_de_pagamento':
+            detalhes_do_pedido['data']['parcelas'][0]['formaPagamento']['id']
+            if detalhes_do_pedido['data']['parcelas']
+            else None,
+        'frete': detalhes_do_pedido['data']['transporte']['frete'],
+        'rua': detalhes_do_pedido['data']['transporte']['etiqueta']['endereco'],
+        'rua_numero': detalhes_do_pedido['data']['transporte']['etiqueta']['numero'],
+        'complemento': detalhes_do_pedido['data']['transporte']['etiqueta']['complemento'],
+        'cidade': detalhes_do_pedido['data']['transporte']['etiqueta']['municipio'],
+        'bairro': detalhes_do_pedido['data']['transporte']['etiqueta']['bairro'],
+        'cep': detalhes_do_pedido['data']['transporte']['etiqueta']['cep'],
+        'uf': detalhes_do_pedido['data']['transporte']['etiqueta']['uf']
+    }
+
+    pedido_completo = dados_do_pedido | campos_detalhados
+
+    for item in itens:
+        id_item = item['produto']['id']
+        if id_item == 0:
+            campos_do_item = {
+                'codigo_item': None,
+                'descricao_item': None,
+                'quantidade': None,
+                'unidade': None,
+                'valor_item': None
+            }
+            lista_pedido.append(pedido_completo | campos_do_item)
+        else:
+            campos_do_item = {
+                'codigo_item': item['codigo'],
+                'descricao_item': item['descricao'],
+                'quantidade': item['quantidade'],
+                'unidade': item['unidade'],
+                'valor_item': item['valor']
+            }
+            lista_pedido.append(pedido_completo | campos_do_item)
+
+    return lista_pedido
+
+
 def multiplos_pedidos(dados):
     print(f'Caminho: {CACHE}')
 
@@ -252,9 +346,9 @@ def multiplos_pedidos(dados):
             filtro_existente = pedidos_existentes[pedidos_existentes['id'] == id_pedido]
             if filtro_existente.empty:
                 print(f"Pedido {id_pedido} é novo, será adicionado.")
-                pedidos_do_pedido = pedido_unico(pedido)
+                pedidos_do_pedido = pedido_unico_sem_componente(pedido)
                 novos_pedidos.extend(pedidos_do_pedido)
-                time.sleep(0.5)
+                time.sleep(0.1)
             else:
                 data_existente = pd.to_datetime(filtro_existente['data_de_atualizacao'].iloc[0]).date()
                 #valores atuais do pedido pela API
@@ -285,9 +379,9 @@ def multiplos_pedidos(dados):
                     for diff in diferenças:
                         print(f"  - {diff}")
                     pedidos_existentes = pedidos_existentes[pedidos_existentes['id'] != id_pedido]
-                    pedidos_do_pedido = pedido_unico(pedido)
+                    pedidos_do_pedido = pedido_unico_sem_componente(pedido)
                     novos_pedidos.extend(pedidos_do_pedido)
-                    time.sleep(0.5)
+                    time.sleep(0.1)
                 else:
                     print(f"Pedido {id_pedido} já existe e não foi atualizado, será ignorado.")
             if i % checkpoint == 0:

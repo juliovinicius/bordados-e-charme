@@ -27,8 +27,7 @@ def get_bling_access_token():
         with open(CAMINHO_BLING_ACCESS_TOKEN, 'rb') as token_file:
             bling_access_token_data = pickle.load(token_file)
         if datetime.now() < bling_access_token_data['expires_at']:
-            '''print(f'O código de acesso armazenado ainda é válido.\n'
-                  f'Código: {bling_access_token_data["access_token"]}.')'''
+            print(f'O código de acesso armazenado ainda é válido.')
             return bling_access_token_data['access_token']
 
         print('O código de acesso está expirado.\nIniciando processo de atualização.')
@@ -97,7 +96,7 @@ def pedidos_gerais():
     pedidos = []
     dt = datetime.now()
     data_inicial = (dt - timedelta(days=30)).strftime('%Y-%m-%d')
-    data_alteracao_inicial = (dt - timedelta(days=2)).strftime('%Y-%m-%d')
+    data_alteracao_inicial = (dt - timedelta(days=1)).strftime('%Y-%m-%d')
     data_alteracao_final = (dt - timedelta(days=21)).strftime('%Y-%m-%d')
 
     for i in count(1, step=1):
@@ -122,13 +121,16 @@ def pedidos_gerais():
 
 def produtos_gerais():
     access_token = get_bling_access_token()
+    print('Lendo produtos.')
 
     produtos = []
     dt = datetime.now()
-    data_inicial = (dt - timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S')
-    data_alteracao_inicial = (dt - timedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')
+    data_inicial = (dt - timedelta(days=15)).strftime('%Y-%m-%d %H:%M:%S')
+    data_final = (dt + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
+    data_alteracao_inicial = (dt - timedelta(days=60)).strftime('%Y-%m-%d %H:%M:%S')
     data_alteracao_final = (dt + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
     for i in count(1, step=1):
+        print(f'página {i}')
         resposta = requests.get(url=f'{url_padrao}/produtos',
                                headers={
                                    'Authorization': f'Bearer {access_token}'
@@ -136,8 +138,9 @@ def produtos_gerais():
                                params={
                                    'pagina': f'{i}'
                                    ,'dataInclusaoInicial': data_inicial,
+                                   #'dataInclusaoFinal': data_final,
                                    'dataAlteracaoInicial': data_alteracao_inicial
-                                   ,'dataAlteracaoFinal': data_alteracao_final
+                                   #,'dataAlteracaoFinal': data_alteracao_final
                                }).json()
 
         produtos += resposta['data']
@@ -263,10 +266,18 @@ def obter_produto(numero_do_produto: int):
         headers={
             'Authorization': f'Bearer {access_token}'
         }
-    ).json()
+    )
     print(f'Requisição concluída para o produto de id {numero_do_produto}.')
-
-    return resposta
+    if resposta.status_code != 200:
+        print(f"[Erro] Produto {numero_do_produto}: Status {resposta.status_code}")
+        print(resposta.text)
+        return None
+    try:
+        return resposta.json()
+    except ValueError:
+        print(f"[Erro] Produto {numero_do_produto}: resposta não é JSON")
+        print(resposta.text)
+        return None
 
 
 def ler_situacoes():
@@ -285,8 +296,8 @@ if __name__ == '__main__':
                         378688497)'''
     #ler_planilha('19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',378688497)
     #pedidos_gerais()
-    #obter_pedido(23412477754)
-    obter_produto(15813948283)
+    obter_pedido(23412477754)
+    #obter_produto(15813948283)
     #get_bling_access_token()
     #ler_situacoes()
-    produtos_gerais()
+    #produtos_gerais()

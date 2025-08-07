@@ -125,9 +125,9 @@ def produtos_gerais():
 
     produtos = []
     dt = datetime.now()
-    data_inicial = (dt - timedelta(days=15)).strftime('%Y-%m-%d %H:%M:%S')
+    data_inicial = (dt - timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S')
     data_final = (dt + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
-    data_alteracao_inicial = (dt - timedelta(days=60)).strftime('%Y-%m-%d %H:%M:%S')
+    data_alteracao_inicial = (dt - timedelta(days=180)).strftime('%Y-%m-%d %H:%M:%S')
     data_alteracao_final = (dt + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')
     for i in count(1, step=1):
         print(f'página {i}')
@@ -140,7 +140,7 @@ def produtos_gerais():
                                    ,'dataInclusaoInicial': data_inicial,
                                    #'dataInclusaoFinal': data_final,
                                    'dataAlteracaoInicial': data_alteracao_inicial
-                                   #,'dataAlteracaoFinal': data_alteracao_final
+                                   ,'dataAlteracaoFinal': data_alteracao_final
                                }).json()
 
         produtos += resposta['data']
@@ -296,8 +296,8 @@ if __name__ == '__main__':
                         378688497)'''
     #ler_planilha('19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',378688497)
     #pedidos_gerais()
-    obter_pedido(23390571318)
+    #obter_pedido(23390571318)
     #obter_produto(15813948283)
     #get_bling_access_token()
     #ler_situacoes()
-    #produtos_gerais()
+    produtos_gerais()

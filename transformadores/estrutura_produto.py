@@ -96,6 +96,8 @@ def multiplos(dados):
                     diferenças.append(f'preço: {produto_existente['preco']} → {produto['preco']}')
                 if produto_existente['situacao'] != produto['situacao']:
                     diferenças.append(f'situação: {produto_existente['situacao']} → {produto['situacao']}')
+                if produto_existente['custo'] != produto['precoCusto']:
+                    diferenças.append(f'custo: {produto_existente['custo']} → {produto['precoCusto']}')
 
                 if diferenças:
                     print(f'Produto {id_produto} foi modificado. Diferenças detectadas:')
@@ -108,19 +110,64 @@ def multiplos(dados):
                     print(f'Produto {id_produto} não foi atualizado. Seguindo.')
             if i % checkpoint == 0:
                 print(f'Checkpoint atingido após {i} produtos. Salvando progresso.')
-                novos_produtos_df = pd.DataFrame(novos_produtos)
+                novos_produtos_df = pd.DataFrame(novos_produtos, columns=[
+                    'id',
+                    'codigo',
+                    'descricao',
+                    'situacao',
+                    'data_de_atualizacao',
+                    'preco',
+                    'custo',
+                    'grupo',
+                    'qtd_componentes',
+                    'id_componente',
+                    'qtd_componente'
+                ])
+                novos_produtos_df['data_de_atualizacao'] = novos_produtos_df['data_de_atualizacao'].apply(
+                    lambda x: x.isoformat() if isinstance(x, pd.Timestamp) else (str(x) if pd.notna(x) else None)
+                )
                 parcial_de_produtos = pd.concat([produtos_existentes, novos_produtos_df], ignore_index=True)
                 parcial_de_produtos.to_parquet(CACHE/'produtos_v2.parquet', index=False)
                 print('Checkpoint salvo com sucesso.')
         except Exception as e:
             print(f'Erro ao processar o produto {produto['id']}: {str(e)}\n'
                   f'Salvando progresso parcial antes de interromper.')
-            novos_produtos_df = pd.DataFrame(novos_produtos)
+            novos_produtos_df = pd.DataFrame(novos_produtos, columns=[
+                    'id',
+                    'codigo',
+                    'descricao',
+                    'situacao',
+                    'data_de_atualizacao',
+                    'preco',
+                    'custo',
+                    'grupo',
+                    'qtd_componentes',
+                    'id_componente',
+                    'qtd_componente'
+                ])
+            novos_produtos_df['data_de_atualizacao'] = novos_produtos_df['data_de_atualizacao'].apply(
+                lambda x: x.isoformat() if isinstance(x, pd.Timestamp) else (str(x) if pd.notna(x) else None)
+            )
             parcial_de_produtos = pd.concat([produtos_existentes, novos_produtos_df], ignore_index=True)
             parcial_de_produtos.to_parquet(CACHE/'produtos_v2.parquet', index=False)
             raise
 
-    novos_produtos_df = pd.DataFrame(novos_produtos)
+    novos_produtos_df = pd.DataFrame(novos_produtos, columns=[
+            'id',
+            'codigo',
+            'descricao',
+            'situacao',
+            'data_de_atualizacao',
+            'preco',
+            'custo',
+            'grupo',
+            'qtd_componentes',
+            'id_componente',
+            'qtd_componente'
+        ])
+    novos_produtos_df['data_de_atualizacao'] = novos_produtos_df['data_de_atualizacao'].apply(
+        lambda x: x.isoformat() if isinstance(x, pd.Timestamp) else (str(x) if pd.notna(x) else None)
+    )
     produtos_finais = pd.concat([produtos_existentes, novos_produtos_df], ignore_index=True)
     produtos_finais.to_parquet(CACHE/'produtos_v2.parquet', index=False)
 

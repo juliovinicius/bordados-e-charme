@@ -333,7 +333,7 @@ def multiplos_pedidos(dados):
             pedidos_existentes['data_de_atualizacao']
         ).dt.date
     novos_pedidos = []
-    checkpoint = 100
+    checkpoint = 50
 
     for i, pedido in enumerate(dados, 1):
         print(f'Executando pedido {i} de {len(dados)}, de número {pedido['numero']}')
@@ -388,7 +388,7 @@ def multiplos_pedidos(dados):
                 print(f"Checkpoint atingido após {i} pedidos. Salvando progresso...")
                 novos_pedidos_df = pd.DataFrame(novos_pedidos)
                 pedidos_finais_parcial = pd.concat([pedidos_existentes, novos_pedidos_df], ignore_index=True)
-                pedidos_finais_parcial.to_parquet(CACHE / 'pedidos.parquet', index=False)
+                pedidos_finais_parcial.to_parquet(CACHE / 'pedidos.parquet', index=False, engine='pyarrow')
                 pedidos_finais_parcial.to_excel(CACHE / 'pedidos.xlsx', index=False)
                 print("Checkpoint salvo com sucesso.")
         except Exception as e:
@@ -396,7 +396,7 @@ def multiplos_pedidos(dados):
             print("Salvando progresso parcial antes de interromper.")
             novos_pedidos_df = pd.DataFrame(novos_pedidos)
             pedidos_finais_parcial = pd.concat([pedidos_existentes, novos_pedidos_df], ignore_index=True)
-            pedidos_finais_parcial.to_parquet(CACHE / 'pedidos.parquet', index=False)
+            pedidos_finais_parcial.to_parquet(CACHE / 'pedidos.parquet', index=False, engine='pyarrow')
             pedidos_finais_parcial.to_excel(CACHE / 'pedidos.xlsx', index=False)
             raise  # relevanta a exceção depois de salvar
 
@@ -405,9 +405,9 @@ def multiplos_pedidos(dados):
     pedidos_finais = pd.concat([pedidos_existentes, novos_pedidos_df], ignore_index=True)
 
     pedidos_finais.to_excel(CACHE/'pedidos.xlsx', index=False)
-    pedidos_finais.to_parquet(CACHE/'pedidos.parquet', index=False)
+    pedidos_finais.to_parquet(CACHE/'pedidos.parquet', index=False, engine='pyarrow')
 
-    return pedidos_finais
+    return novos_pedidos_df
 
 
 if __name__ == '__main__':

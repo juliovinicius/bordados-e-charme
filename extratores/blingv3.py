@@ -12,7 +12,7 @@ from pathlib import Path
 
 
 CAMINHO_BLING_ACCESS_TOKEN = Path(__file__).parent.parent / "cache" / "bling_v3_access_token.b"
-CAMINHO_PARA_CREDENCIAIS_DO_SHEETS = Path(__file__).parent.parent / "credenciais" / "chave-google-sheets.json"
+CAMINHO_PARA_CREDENCIAIS_DO_SHEETS = Path(__file__).parent.parent / "credenciais" / "chave-google.json"
 client_id = '6a98683078ddd386e7702e995261f604ddca8a72'
 client_secret = '64e8d1ad698d75e3e1f40e6d94773b11417b4580d961bbdb292dcd5c3b3a'
 url_padrao = 'https://api.bling.com.br/Api/v3'
@@ -95,7 +95,7 @@ def pedidos_gerais():
 
     pedidos = []
     dt = datetime.now()
-    data_inicial = (dt - timedelta(days=60)).strftime('%Y-%m-%d')
+    data_inicial = (dt - timedelta(days=15)).strftime('%Y-%m-%d')
     data_alteracao_inicial = (dt - timedelta(days=1)).strftime('%Y-%m-%d')
     data_alteracao_final = (dt - timedelta(days=21)).strftime('%Y-%m-%d')
 
@@ -295,8 +295,8 @@ if __name__ == '__main__':
                         '19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',
                         378688497)'''
     #ler_planilha('19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',378688497)
-    #pedidos_gerais()
-    obter_pedido(23693383629)
+    pedidos_gerais()
+    #obter_pedido(23693383629)
     #obter_produto(15813948283)
     #get_bling_access_token()
     #ler_situacoes()

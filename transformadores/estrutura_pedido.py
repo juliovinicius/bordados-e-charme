@@ -1,4 +1,5 @@
 import extratores
+import carregadores
 from pathlib import Path
 import pandas as pd
 import time
@@ -319,13 +320,15 @@ def pedido_unico_sem_componente(pedido):
 def multiplos_pedidos(dados):
     print(f'Caminho: {CACHE}')
 
-    # Tentar carregar pedidos já existentes
+    '''# Tentar carregar pedidos já existentes
     try:
         pedidos_existentes = pd.read_parquet(CACHE / 'pedidos.parquet')
         print(f"{len(pedidos_existentes)} linhas carregadas.")
     except FileNotFoundError:
         pedidos_existentes = pd.DataFrame(columns=['id', 'data_de_atualizacao'])
-        print("Nenhum arquivo de pedidos encontrado. Começando do zero.")
+        print("Nenhum arquivo de pedidos encontrado. Começando do zero.")'''
+
+    pedidos_existentes = extratores.google_cloud_storage.ler_arquivo_no_gcs()
 
     # Normalizar datas para apenas o dia, se houver pedidos existentes
     if not pedidos_existentes.empty:
@@ -333,7 +336,7 @@ def multiplos_pedidos(dados):
             pedidos_existentes['data_de_atualizacao']
         ).dt.date
     novos_pedidos = []
-    checkpoint = 50
+    checkpoint = 500
 
     for i, pedido in enumerate(dados, 1):
         print(f'Executando pedido {i} de {len(dados)}, de número {pedido['numero']}')
@@ -407,7 +410,7 @@ def multiplos_pedidos(dados):
     pedidos_finais.to_excel(CACHE/'pedidos.xlsx', index=False)
     pedidos_finais.to_parquet(CACHE/'pedidos.parquet', index=False, engine='pyarrow')
 
-    return novos_pedidos_df
+    return novos_pedidos_df, pedidos_finais
 
 
 if __name__ == '__main__':

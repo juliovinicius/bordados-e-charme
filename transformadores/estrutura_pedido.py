@@ -180,7 +180,7 @@ def pedido_unico(pedido):
         detalhe_item = extratores.blingv3.obter_produto(id_item)
         estrutura_do_item = detalhe_item['data']['estrutura']['componentes']
         if len(estrutura_do_item) == 0:
-            print(f'O item atual {item['descricao']} não possui componentes.')
+            print(f"O item atual {item['descricao']} não possui componentes.")
             campos_do_item = {
                 'codigo_item': item['codigo'],
                 'descricao_item': item['descricao'],
@@ -197,7 +197,7 @@ def pedido_unico(pedido):
             }
             lista_pedido.append(pedido_completo | campos_do_item)
         if len(estrutura_do_item) != 0:
-            print(f'O item atual {item['descricao']} possui {len(estrutura_do_item)} componente(s).')
+            print(f"O item atual {item['descricao']} possui {len(estrutura_do_item)} componente(s).")
             for componente in estrutura_do_item:
                 time.sleep(0.5)
                 quantidade_do_componente = componente['quantidade']
@@ -217,7 +217,7 @@ def pedido_unico(pedido):
                     'check_componente_kit':
                         'Sim' if len(detalhe_do_componente['data']['estrutura']['componentes']) > 0 else 'Não'
                 }
-                print(f'Componente {detalhe_do_componente['data']['nome']} do item {item['descricao']} lido.')
+                print(f"Componente {detalhe_do_componente['data']['nome']} do item {item['descricao']} lido.")
                 lista_pedido.append(pedido_completo | campos_do_item)
 
     return lista_pedido
@@ -339,7 +339,7 @@ def multiplos_pedidos(dados):
     checkpoint = 500
 
     for i, pedido in enumerate(dados, 1):
-        print(f'Executando pedido {i} de {len(dados)}, de número {pedido['numero']}')
+        print(f"Executando pedido {i} de {len(dados)}, de número {pedido['numero']}")
 
         try:
             # Checar se o pedido já existe e comparar data
@@ -392,7 +392,7 @@ def multiplos_pedidos(dados):
                 novos_pedidos_df = pd.DataFrame(novos_pedidos)
                 pedidos_finais_parcial = pd.concat([pedidos_existentes, novos_pedidos_df], ignore_index=True)
                 pedidos_finais_parcial.to_parquet(CACHE / 'pedidos.parquet', index=False, engine='pyarrow')
-                pedidos_finais_parcial.to_excel(CACHE / 'pedidos.xlsx', index=False)
+                #pedidos_finais_parcial.to_excel(CACHE / 'pedidos.xlsx', index=False)
                 print("Checkpoint salvo com sucesso.")
         except Exception as e:
             print(f"Erro ao processar o pedido {pedido.get('id', 'sem id')}: {str(e)}")
@@ -400,14 +400,14 @@ def multiplos_pedidos(dados):
             novos_pedidos_df = pd.DataFrame(novos_pedidos)
             pedidos_finais_parcial = pd.concat([pedidos_existentes, novos_pedidos_df], ignore_index=True)
             pedidos_finais_parcial.to_parquet(CACHE / 'pedidos.parquet', index=False, engine='pyarrow')
-            pedidos_finais_parcial.to_excel(CACHE / 'pedidos.xlsx', index=False)
+            #pedidos_finais_parcial.to_excel(CACHE / 'pedidos.xlsx', index=False)
             raise  # relevanta a exceção depois de salvar
 
     # Concatenar os novos pedidos com os existentes
     novos_pedidos_df = pd.DataFrame(novos_pedidos)
     pedidos_finais = pd.concat([pedidos_existentes, novos_pedidos_df], ignore_index=True)
 
-    pedidos_finais.to_excel(CACHE/'pedidos.xlsx', index=False)
+    #pedidos_finais.to_excel(CACHE/'pedidos.xlsx', index=False)
     pedidos_finais.to_parquet(CACHE/'pedidos.parquet', index=False, engine='pyarrow')
 
     return novos_pedidos_df, pedidos_finais

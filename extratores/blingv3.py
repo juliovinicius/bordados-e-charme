@@ -17,9 +17,6 @@ client_id = '6a98683078ddd386e7702e995261f604ddca8a72'
 client_secret = '64e8d1ad698d75e3e1f40e6d94773b11417b4580d961bbdb292dcd5c3b3a'
 url_padrao = 'https://api.bling.com.br/Api/v3'
 
-scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-credentials = ServiceAccountCredentials.from_json_keyfile_name(CAMINHO_PARA_CREDENCIAIS_DO_SHEETS, scope)
-client = gspread.authorize(credentials)
 
 
 def get_bling_access_token():
@@ -216,6 +213,9 @@ def ler_nota_fiscal(id_nota):
 
 
 def ler_planilha(url, id):
+    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(CAMINHO_PARA_CREDENCIAIS_DO_SHEETS, scope)
+    client = gspread.authorize(credentials)
     planilha = client.open_by_key(url).get_worksheet_by_id(id)
     dados = planilha.get("C6:F")
 

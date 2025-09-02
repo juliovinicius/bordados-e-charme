@@ -3,13 +3,49 @@ import pandas as pd
 import io
 import os
 from pathlib import Path
+from google.auth import default as google_default_credentials
 
 BUCKET = 'bling_bcharm'
 PARQUET_GERAL_BLOB = 'pedidos.parquet'
+CAMINHO_JSON = str(Path(__file__).parent.parent / 'credenciais'/ 'chave-google.json')
+
+
+def gcp_credenciais(caminho_json: str = None):
+    """
+        Configura as credenciais do GCP.
+
+        - local_json_path: caminho opcional para JSON local (apenas para desenvolvimento).
+        """
+    # Se estiver rodando localmente e o JSON existir, define a variável de ambiente
+    if caminho_json:
+        json_path = Path(caminho_json)
+        if json_path.exists():
+            os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = str(json_path)
+            print(f"[INFO] Usando credenciais locais: {json_path}")
+            return
+
+    # Caso contrário, tenta pegar credenciais padrão do ambiente
+    try:
+        creds, project = google_default_credentials()
+        print(f"[INFO] Usando credenciais padrão do ambiente (project={project})")
+    except Exception as e:
+        raise RuntimeError(
+            "Não foi possível localizar credenciais do GCP. "
+            "Para desenvolvimento local, forneça o caminho do JSON. "
+            "No Cloud Run, verifique a conta de serviço."
+        ) from e
+
+
+def get_storage_client(caminho_json: str = None):
+    """
+        Retorna um client do GCS já autenticado.
+        """
+    gcp_credenciais(caminho_json)
+    return storage.Client()
 
 
 def ler_arquivo_no_gcs():
-    client = storage.Client()
+    client = get_storage_client(CAMINHO_JSON)
     bucket = client.bucket(BUCKET)
     blob = bucket.blob(PARQUET_GERAL_BLOB)
 

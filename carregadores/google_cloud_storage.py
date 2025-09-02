@@ -1,4 +1,5 @@
 import extratores.blingv3
+from extratores.google_cloud_storage import get_storage_client
 import transformadores
 from google.cloud import storage
 import pandas as pd
@@ -7,7 +8,7 @@ import os
 from pathlib import Path
 
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = str(Path(__file__).parent.parent /'credenciais'/'chave-google.json')
+CAMINHO_JSON = str(Path(__file__).parent.parent /'credenciais'/'chave-google.json')
 
 BUCKET = 'bling_bcharm'
 PARQUET_NOVOS_BLOB = 'pedidos_a_preencher.parquet'
@@ -15,7 +16,7 @@ PARQUET_GERAL_BLOB = 'pedidos.parquet'
 
 
 def salvando_no_gcs(df_novo: pd.DataFrame, df_total: pd.DataFrame):
-    client = storage.Client()
+    client = get_storage_client(CAMINHO_JSON)
     bucket = client.bucket(BUCKET)
     blob_novos = bucket.blob(PARQUET_NOVOS_BLOB)
     blob_total = bucket.blob(PARQUET_GERAL_BLOB)

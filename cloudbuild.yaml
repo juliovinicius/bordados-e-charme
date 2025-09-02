@@ -3,9 +3,9 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: [
       'build', '-t',
-      'us-central1-docker.pkg.dev/bordados-e-charme/bordados-e-charme/atualizacao-de-pedidos-build:$COMMIT_SHA',
+      'us-central1-docker.pkg.dev/bordados-e-charme/cloud-run-source-deploy/bordados-e-charme/atualizacao-de-pedidos-build:$COMMIT_SHA',
       '-t',
-      'us-central1-docker.pkg.dev/bordados-e-charme/bordados-e-charme/atualizacao-de-pedidos-build:latest',
+      'us-central1-docker.pkg.dev/bordados-e-charme/cloud-run-source-deploy/bordados-e-charme/atualizacao-de-pedidos-build:latest',
       '.'
     ]
 
@@ -13,12 +13,12 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: [
       'push',
-      'us-central1-docker.pkg.dev/bordados-e-charme/bordados-e-charme/atualizacao-de-pedidos-build:$COMMIT_SHA'
+      'us-central1-docker.pkg.dev/bordados-e-charme/cloud-run-source-deploy/bordados-e-charme/atualizacao-de-pedidos-build:$COMMIT_SHA'
     ]
   - name: 'gcr.io/cloud-builders/docker'
     args: [
       'push',
-      'us-central1-docker.pkg.dev/bordados-e-charme/bordados-e-charme/atualizacao-de-pedidos-build:latest'
+      'us-central1-docker.pkg.dev/bordados-e-charme/cloud-run-source-deploy/bordados-e-charme/atualizacao-de-pedidos-build:latest'
     ]
 
   # 3. Deploy no Cloud Run
@@ -27,12 +27,12 @@ steps:
     args:
       [
         'run', 'jobs', 'deploy', 'atualizacao-de-pedidos-job',
-        '--image=us-central1-docker.pkg.dev/bordados-e-charme/bordados-e-charme/atualizacao-de-pedidos-build:latest',
+        '--image=us-central1-docker.pkg.dev/bordados-e-charme/cloud-run-source-deploy/bordados-e-charme/atualizacao-de-pedidos-build:latest',
         '--region=us-central1',
         '--platform=managed',
         '--allow-unauthenticated'
       ]
 
 images:
-  - 'us-central1-docker.pkg.dev/bordados-e-charme/bordados-e-charme/atualizacao-de-pedidos-build:$COMMIT_SHA'
-  - 'us-central1-docker.pkg.dev/bordados-e-charme/bordados-e-charme/atualizacao-de-pedidos-build:latest'
+  - 'us-central1-docker.pkg.dev/bordados-e-charme/cloud-run-source-deploy/bordados-e-charme/atualizacao-de-pedidos-build:$COMMIT_SHA'
+  - 'us-central1-docker.pkg.dev/bordados-e-charme/cloud-run-source-deploy/bordados-e-charme/atualizacao-de-pedidos-build:latest'

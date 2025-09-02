@@ -19,8 +19,9 @@ steps:
     entrypoint: gcloud
     args:
       - run
+      - jobs
       - deploy
-      - atualizacao-de-pedidos-build
+      - atualizacao-de-pedidos-job
       - --image=us-central1-docker.pkg.dev/bordados-e-charme/bordados-e-charme/atualizacao-de-pedidos-build:$COMMIT_SHA
       - --region=us-central1
       - --platform=managed

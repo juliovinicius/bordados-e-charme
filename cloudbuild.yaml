@@ -4,6 +4,8 @@ steps:
     args: [
       'build', '-t',
       'us-central1-docker.pkg.dev/bordados-e-charme/bordados-e-charme/atualizacao-de-pedidos-build:$COMMIT_SHA',
+      '-t',
+      'us-central1-docker.pkg.dev/bordados-e-charme/bordados-e-charme/atualizacao-de-pedidos-build:latest',
       '.'
     ]
 
@@ -29,3 +31,4 @@ steps:
 
 images:
   - 'us-central1-docker.pkg.dev/bordados-e-charme/bordados-e-charme/atualizacao-de-pedidos-build:$COMMIT_SHA'
+  - 'us-central1-docker.pkg.dev/bordados-e-charme/bordados-e-charme/atualizacao-de-pedidos-build:latest'

@@ -1,11 +1,12 @@
 import extratores.blingv3
-from extratores.google_cloud_storage import get_storage_client
+from extratores.google_cloud_storage import get_storage_client, BLOB_TOKEN_BLING
 import transformadores
 from google.cloud import storage
 import pandas as pd
 import io
 import os
 from pathlib import Path
+import pickle
 
 
 CAMINHO_JSON = str(Path(__file__).parent.parent /'credenciais'/'chave-google.json')
@@ -34,6 +35,18 @@ def salvando_no_gcs(df_novo: pd.DataFrame, df_total: pd.DataFrame):
     print('Arquivo geral salvo no GCS.')
 
     return 'Salvos no GCS.'
+
+def salvar_bling_token(tokens):
+    client = get_storage_client(CAMINHO_JSON)
+    bucket = client.bucket(BUCKET)
+    blob = bucket.blob(BLOB_TOKEN_BLING)
+
+    buffer = io.BytesIO()
+    pickle.dump(tokens, buffer)
+    buffer.seek(0)
+    blob.upload_from_file(buffer, rewind=True)
+
+    return 'Token salvo no GCS'
 
 
 if __name__ == '__main__':

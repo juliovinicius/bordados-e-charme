@@ -4,9 +4,11 @@ import io
 import os
 from pathlib import Path
 from google.auth import default as google_default_credentials
+import pickle
 
 BUCKET = 'bling_bcharm'
 PARQUET_GERAL_BLOB = 'pedidos.parquet'
+BLOB_TOKEN_BLING = 'bling_v3_access_token.b'
 CAMINHO_JSON = str(Path(__file__).parent.parent / 'credenciais'/ 'chave-google.json')
 
 
@@ -60,4 +62,20 @@ def ler_arquivo_no_gcs():
     df = pd.read_parquet(buffer, engine="pyarrow")
     print(f"{len(df)} linhas carregadas do GCS.")
     return df
+
+def ler_bling_token():
+    client = get_storage_client(CAMINHO_JSON)
+    bucket = client.bucket(BUCKET)
+    blob = bucket.blob(BLOB_TOKEN_BLING)
+
+    if not blob.exists():
+        print('Arquivo de token de acesso não encontrado no bucket.')
+        return
+
+    buffer = io.BytesIO()
+    blob.download_to_file(buffer)
+    buffer.seek(0)
+    bling_access_token_data = pickle.load(buffer)
+
+    return bling_access_token_data
 

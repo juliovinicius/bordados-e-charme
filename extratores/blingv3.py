@@ -7,6 +7,9 @@ import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
 import time
 
+import carregadores.google_cloud_storage
+import extratores.google_cloud_storage
+
 import requests
 from pathlib import Path
 
@@ -20,9 +23,11 @@ url_padrao = 'https://api.bling.com.br/Api/v3'
 
 
 def get_bling_access_token():
-    if CAMINHO_BLING_ACCESS_TOKEN.exists():
-        with open(CAMINHO_BLING_ACCESS_TOKEN, 'rb') as token_file:
-            bling_access_token_data = pickle.load(token_file)
+    bling_access_token_data = extratores.google_cloud_storage.ler_bling_token()
+
+    if bling_access_token_data:
+        '''with open(CAMINHO_BLING_ACCESS_TOKEN, "rb") as token_file:
+            bling_access_token_data = pickle.load(token_file)'''
         if datetime.now() < bling_access_token_data['expires_at']:
             print(f'O código de acesso armazenado ainda é válido.')
             return bling_access_token_data['access_token']
@@ -56,12 +61,11 @@ def get_bling_access_token():
             tokens["created_at"] = created_at
             tokens["expires_at"] = expires_at
             print(f'O novo código expira em: {tokens["expires_at"]}')
-            with open(CAMINHO_BLING_ACCESS_TOKEN, 'wb') as token_file:
-                pickle.dump(tokens, token_file)
+            carregadores.google_cloud_storage.salvar_bling_token(tokens)
 
             return tokens['access_token']
         else:
-            print(f"Failed to refresh token. Status code: {response.status_code}")
+            print(f"Falha ao atualizar token. Status: {response.status_code}")
             print(response.text)
 
     print('sem arquivo')

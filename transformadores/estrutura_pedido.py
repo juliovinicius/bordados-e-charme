@@ -82,7 +82,8 @@ def situacoes(situacao_id):
         130276: 'Em troca',
         118912: 'China Comunicado Atendimento',
         464030: 'Verificado Full',
-        141129: 'Devolução'
+        141129: 'Devolução',
+        54829: 'CHARME DO DETALHE - DROPSHIPPING'
     }
     return situacoes_dict.get(situacao_id, f"Situação desconhecida: {situacao_id}")
 
@@ -339,7 +340,7 @@ def multiplos_pedidos(dados):
     checkpoint = 500
 
     for i, pedido in enumerate(dados, 1):
-        print(f"Executando pedido {i} de {len(dados)}, de número {pedido['numero']}")
+        #print(f"Executando pedido {i} de {len(dados)}, de número {pedido['numero']}")
 
         try:
             # Checar se o pedido já existe e comparar data
@@ -348,7 +349,8 @@ def multiplos_pedidos(dados):
 
             filtro_existente = pedidos_existentes[pedidos_existentes['id'] == id_pedido]
             if filtro_existente.empty:
-                print(f"Pedido {id_pedido} é novo, será adicionado.")
+                print(f"Executando pedido {i} de {len(dados)}, de número {pedido['numero']}\n"
+                      f"Pedido {id_pedido} é novo, será adicionado.")
                 pedidos_do_pedido = pedido_unico_sem_componente(pedido)
                 novos_pedidos.extend(pedidos_do_pedido)
                 time.sleep(0.1)
@@ -378,15 +380,16 @@ def multiplos_pedidos(dados):
                     diferenças.append(f"cpf_cliente: {pedido_existente['cpf_cliente']} → {cpf_cliente}")
 
                 if diferenças:
-                    print(f"Pedido {id_pedido} foi atualizado. Diferenças detectadas:")
+                    print(f"Executando pedido {i} de {len(dados)}, de número {pedido['numero']}\n"
+                          f"Pedido {id_pedido} foi atualizado. Diferenças detectadas:")
                     for diff in diferenças:
                         print(f"  - {diff}")
                     pedidos_existentes = pedidos_existentes[pedidos_existentes['id'] != id_pedido]
                     pedidos_do_pedido = pedido_unico_sem_componente(pedido)
                     novos_pedidos.extend(pedidos_do_pedido)
                     time.sleep(0.1)
-                else:
-                    print(f"Pedido {id_pedido} já existe e não foi atualizado, será ignorado.")
+                '''else:
+                    print(f"Pedido {id_pedido} já existe e não foi atualizado, será ignorado.")'''
             if i % checkpoint == 0:
                 print(f"Checkpoint atingido após {i} pedidos. Salvando progresso...")
                 novos_pedidos_df = pd.DataFrame(novos_pedidos)

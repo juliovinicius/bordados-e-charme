@@ -6,6 +6,7 @@ def gatilho_de_att_de_pedidos():
         extratores.blingv3.pedidos_gerais()
     )
     carregadores.google_cloud_storage.salvando_no_gcs(novos_pedidos, todos_os_pedidos)
+    carregadores.google_cloud_storage.salvando_no_bigquery(todos_os_pedidos)
 
     return 'Fluxo completo com sucesso'
 

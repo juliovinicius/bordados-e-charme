@@ -2,6 +2,7 @@ import extratores.blingv3
 from extratores.google_cloud_storage import get_storage_client, BLOB_TOKEN_BLING
 import transformadores
 from google.cloud import storage
+from google.cloud import bigquery
 import pandas as pd
 import io
 import os
@@ -14,6 +15,8 @@ CAMINHO_JSON = str(Path(__file__).parent.parent /'credenciais'/'chave-google.jso
 BUCKET = 'bling_bcharm'
 PARQUET_NOVOS_BLOB = 'pedidos_a_preencher.parquet'
 PARQUET_GERAL_BLOB = 'pedidos.parquet'
+BQ_DATASET = 'layer2'
+BQ_TABLE = 'pedidos'
 
 
 def salvando_no_gcs(df_novo: pd.DataFrame, df_total: pd.DataFrame):
@@ -36,6 +39,7 @@ def salvando_no_gcs(df_novo: pd.DataFrame, df_total: pd.DataFrame):
 
     return 'Salvos no GCS.'
 
+
 def salvar_bling_token(tokens):
     client = get_storage_client(CAMINHO_JSON)
     bucket = client.bucket(BUCKET)
@@ -47,6 +51,30 @@ def salvar_bling_token(tokens):
     blob.upload_from_file(buffer, rewind=True)
 
     return 'Token salvo no GCS'
+
+
+def salvando_no_bigquery(base: pd.DataFrame):
+    print("Enviando para BigQuery...")
+    bq_client = bigquery.Client()
+    job_config = bigquery.LoadJobConfig(
+        write_disposition="WRITE_TRUNCATE",  # ou WRITE_APPEND se preferir
+        autodetect=True,
+        source_format=bigquery.SourceFormat.PARQUET,
+    )
+
+    buffer = io.BytesIO()
+    base.to_parquet(buffer, index=False)
+    buffer.seek(0)
+
+    job = bq_client.load_table_from_file(
+        buffer,
+        destination=f"{bq_client.project}.{BQ_DATASET}.{BQ_TABLE}",
+        job_config=job_config
+    )
+    job.result()
+    print(f"Tabela {BQ_DATASET}.{BQ_TABLE} atualizada com sucesso.")
+
+    return f'Tabela {BQ_DATASET}.{BQ_TABLE} atualizada com sucesso'
 
 
 if __name__ == '__main__':

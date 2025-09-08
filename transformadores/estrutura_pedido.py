@@ -1,4 +1,5 @@
 import extratores
+import carregadores
 from pathlib import Path
 import pandas as pd
 import time
@@ -81,7 +82,8 @@ def situacoes(situacao_id):
         130276: 'Em troca',
         118912: 'China Comunicado Atendimento',
         464030: 'Verificado Full',
-        141129: 'Devolução'
+        141129: 'Devolução',
+        54829: 'CHARME DO DETALHE - DROPSHIPPING'
     }
     return situacoes_dict.get(situacao_id, f"Situação desconhecida: {situacao_id}")
 
@@ -179,7 +181,7 @@ def pedido_unico(pedido):
         detalhe_item = extratores.blingv3.obter_produto(id_item)
         estrutura_do_item = detalhe_item['data']['estrutura']['componentes']
         if len(estrutura_do_item) == 0:
-            print(f'O item atual {item['descricao']} não possui componentes.')
+            print(f"O item atual {item['descricao']} não possui componentes.")
             campos_do_item = {
                 'codigo_item': item['codigo'],
                 'descricao_item': item['descricao'],
@@ -196,7 +198,7 @@ def pedido_unico(pedido):
             }
             lista_pedido.append(pedido_completo | campos_do_item)
         if len(estrutura_do_item) != 0:
-            print(f'O item atual {item['descricao']} possui {len(estrutura_do_item)} componente(s).')
+            print(f"O item atual {item['descricao']} possui {len(estrutura_do_item)} componente(s).")
             for componente in estrutura_do_item:
                 time.sleep(0.5)
                 quantidade_do_componente = componente['quantidade']
@@ -216,7 +218,7 @@ def pedido_unico(pedido):
                     'check_componente_kit':
                         'Sim' if len(detalhe_do_componente['data']['estrutura']['componentes']) > 0 else 'Não'
                 }
-                print(f'Componente {detalhe_do_componente['data']['nome']} do item {item['descricao']} lido.')
+                print(f"Componente {detalhe_do_componente['data']['nome']} do item {item['descricao']} lido.")
                 lista_pedido.append(pedido_completo | campos_do_item)
 
     return lista_pedido
@@ -319,13 +321,15 @@ def pedido_unico_sem_componente(pedido):
 def multiplos_pedidos(dados):
     print(f'Caminho: {CACHE}')
 
-    # Tentar carregar pedidos já existentes
+    '''# Tentar carregar pedidos já existentes
     try:
         pedidos_existentes = pd.read_parquet(CACHE / 'pedidos.parquet')
         print(f"{len(pedidos_existentes)} linhas carregadas.")
     except FileNotFoundError:
         pedidos_existentes = pd.DataFrame(columns=['id', 'data_de_atualizacao'])
-        print("Nenhum arquivo de pedidos encontrado. Começando do zero.")
+        print("Nenhum arquivo de pedidos encontrado. Começando do zero.")'''
+
+    pedidos_existentes = extratores.google_cloud_storage.ler_arquivo_no_gcs()
 
     # Normalizar datas para apenas o dia, se houver pedidos existentes
     if not pedidos_existentes.empty:
@@ -333,10 +337,10 @@ def multiplos_pedidos(dados):
             pedidos_existentes['data_de_atualizacao']
         ).dt.date
     novos_pedidos = []
-    checkpoint = 100
+    checkpoint = 500
 
     for i, pedido in enumerate(dados, 1):
-        print(f'Executando pedido {i} de {len(dados)}, de número {pedido['numero']}')
+        #print(f"Executando pedido {i} de {len(dados)}, de número {pedido['numero']}")
 
         try:
             # Checar se o pedido já existe e comparar data
@@ -345,7 +349,8 @@ def multiplos_pedidos(dados):
 
             filtro_existente = pedidos_existentes[pedidos_existentes['id'] == id_pedido]
             if filtro_existente.empty:
-                print(f"Pedido {id_pedido} é novo, será adicionado.")
+                print(f"Executando pedido {i} de {len(dados)}, de número {pedido['numero']}\n"
+                      f"Pedido {id_pedido} é novo, será adicionado.")
                 pedidos_do_pedido = pedido_unico_sem_componente(pedido)
                 novos_pedidos.extend(pedidos_do_pedido)
                 time.sleep(0.1)
@@ -375,39 +380,40 @@ def multiplos_pedidos(dados):
                     diferenças.append(f"cpf_cliente: {pedido_existente['cpf_cliente']} → {cpf_cliente}")
 
                 if diferenças:
-                    print(f"Pedido {id_pedido} foi atualizado. Diferenças detectadas:")
+                    print(f"Executando pedido {i} de {len(dados)}, de número {pedido['numero']}\n"
+                          f"Pedido {id_pedido} foi atualizado. Diferenças detectadas:")
                     for diff in diferenças:
                         print(f"  - {diff}")
                     pedidos_existentes = pedidos_existentes[pedidos_existentes['id'] != id_pedido]
                     pedidos_do_pedido = pedido_unico_sem_componente(pedido)
                     novos_pedidos.extend(pedidos_do_pedido)
                     time.sleep(0.1)
-                else:
-                    print(f"Pedido {id_pedido} já existe e não foi atualizado, será ignorado.")
+                '''else:
+                    print(f"Pedido {id_pedido} já existe e não foi atualizado, será ignorado.")'''
             if i % checkpoint == 0:
                 print(f"Checkpoint atingido após {i} pedidos. Salvando progresso...")
                 novos_pedidos_df = pd.DataFrame(novos_pedidos)
                 pedidos_finais_parcial = pd.concat([pedidos_existentes, novos_pedidos_df], ignore_index=True)
-                pedidos_finais_parcial.to_parquet(CACHE / 'pedidos.parquet', index=False)
-                pedidos_finais_parcial.to_excel(CACHE / 'pedidos.xlsx', index=False)
+                pedidos_finais_parcial.to_parquet(CACHE / 'pedidos.parquet', index=False, engine='pyarrow')
+                #pedidos_finais_parcial.to_excel(CACHE / 'pedidos.xlsx', index=False)
                 print("Checkpoint salvo com sucesso.")
         except Exception as e:
             print(f"Erro ao processar o pedido {pedido.get('id', 'sem id')}: {str(e)}")
             print("Salvando progresso parcial antes de interromper.")
             novos_pedidos_df = pd.DataFrame(novos_pedidos)
             pedidos_finais_parcial = pd.concat([pedidos_existentes, novos_pedidos_df], ignore_index=True)
-            pedidos_finais_parcial.to_parquet(CACHE / 'pedidos.parquet', index=False)
-            pedidos_finais_parcial.to_excel(CACHE / 'pedidos.xlsx', index=False)
+            pedidos_finais_parcial.to_parquet(CACHE / 'pedidos.parquet', index=False, engine='pyarrow')
+            #pedidos_finais_parcial.to_excel(CACHE / 'pedidos.xlsx', index=False)
             raise  # relevanta a exceção depois de salvar
 
     # Concatenar os novos pedidos com os existentes
     novos_pedidos_df = pd.DataFrame(novos_pedidos)
     pedidos_finais = pd.concat([pedidos_existentes, novos_pedidos_df], ignore_index=True)
 
-    pedidos_finais.to_excel(CACHE/'pedidos.xlsx', index=False)
-    pedidos_finais.to_parquet(CACHE/'pedidos.parquet', index=False)
+    #pedidos_finais.to_excel(CACHE/'pedidos.xlsx', index=False)
+    pedidos_finais.to_parquet(CACHE/'pedidos.parquet', index=False, engine='pyarrow')
 
-    return pedidos_finais
+    return novos_pedidos_df, pedidos_finais
 
 
 if __name__ == '__main__':

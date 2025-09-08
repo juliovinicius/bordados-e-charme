@@ -8,7 +8,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import transformadores, extratores
 
 
-CAMINHO_PARA_CREDENCIAIS_DO_SHEETS = Path(__file__).parent.parent / "credenciais" / "chave-google-sheets.json"
+CAMINHO_PARA_CREDENCIAIS_DO_SHEETS = Path(__file__).parent.parent / "credenciais" / "chave-google.json"
 
 
 def alimentar_planilha(dados: pd.DataFrame):

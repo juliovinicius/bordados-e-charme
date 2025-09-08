@@ -101,7 +101,7 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
         saldo = float(conta['conta']['saldo'])
         if chave in registros_existentes:
             if registros_existentes[chave]['saldo'] != saldo:
-                print(f'Conta {chave} saldo atualizado de {registros_existentes[chave]['saldo']} para {saldo}. Substituindo.')
+                print(f"Conta {chave} saldo atualizado de {registros_existentes[chave]['saldo']} para {saldo}. Substituindo.")
                 registros_existentes[chave]['saldo'] = saldo
                 contas = [c for c in contas if (c['ID'], c['RAZAO_SOCIAL']) != chave]
                 contas.append(conta_unica(conta, razao_social, apikey, tipo, backup='não'))
@@ -116,7 +116,7 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
                     and registros_existentes[chave]['data_leitura'] != data_atual
                     and registros_existentes[chave]['vencimento'] < data_referencia_futura):
                 #print(f'Conta {chave} já existe com o mesmo saldo. Ignorando.')
-                print(f'Conta {chave} de vencimento {registros_existentes[chave]['vencimento']} já existe com o mesmo saldo. Inserindo/atualizando leitura.')
+                print(f"Conta {chave} de vencimento {registros_existentes[chave]['vencimento']} já existe com o mesmo saldo. Inserindo/atualizando leitura.")
                 contas = [c for c in contas if (c['ID'], c['RAZAO_SOCIAL']) != chave]
                 contas.append(conta_unica(conta, razao_social, apikey, tipo, backup='não'))
                 print(f'Conta {i} com leitura atualizada no DataFrame.')
@@ -128,7 +128,7 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
             if (registros_existentes[chave]['saldo'] == saldo
                     and registros_existentes[chave]['vencimento'] < data_referencia
                     and registros_existentes[chave]['backup'] == 'não'):
-                print(f'Conta {chave} de vencimento {registros_existentes[chave]['vencimento']} está sendo lida para backup.')
+                print(f"Conta {chave} de vencimento {registros_existentes[chave]['vencimento']} está sendo lida para backup.")
                 contas = [c for c in contas if (c['ID'], c['RAZAO_SOCIAL']) != chave]
                 contas.append(conta_unica(conta, razao_social, apikey, tipo, backup='sim'))
                 print(f'Conta {i} com leitura atualizada no DataFrame.')
@@ -159,7 +159,7 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
         saldo = float(conta['conta']['saldo'])
         if chave in registros_existentes:
             if registros_existentes[chave]['saldo'] != saldo:
-                print(f'Conta {chave} saldo atualizado de {registros_existentes[chave]['saldo']} para {saldo}. Substituindo.')
+                print(f"Conta {chave} saldo atualizado de {registros_existentes[chave]['saldo']} para {saldo}. Substituindo.")
                 registros_existentes[chave]['saldo'] = saldo
                 contas = [c for c in contas if (c['ID'], c['RAZAO_SOCIAL']) != chave]
                 contas.append(conta_unica(conta, razao_social, apikey, tipo, backup='não'))
@@ -187,7 +187,7 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
                     and registros_existentes[chave]['vencimento'] < data_referencia
                     and registros_existentes[chave]['backup'] == 'não'):
                 #print(f'Conta {chave} já existe com o mesmo saldo. Ignorando.')
-                print(f'Conta {chave} de vencimento {registros_existentes[chave]['vencimento']} está sendo lida para backup.')
+                print(f"Conta {chave} de vencimento {registros_existentes[chave]['vencimento']} está sendo lida para backup.")
                 contas = [c for c in contas if (c['ID'], c['RAZAO_SOCIAL']) != chave]
                 contas.append(conta_unica(conta, razao_social, apikey, tipo, backup='sim'))
                 print(f'Conta {j} com leitura atualizada no DataFrame.')

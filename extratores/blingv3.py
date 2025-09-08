@@ -7,25 +7,27 @@ import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
 import time
 
+import carregadores.google_cloud_storage
+import extratores.google_cloud_storage
+
 import requests
 from pathlib import Path
 
 
 CAMINHO_BLING_ACCESS_TOKEN = Path(__file__).parent.parent / "cache" / "bling_v3_access_token.b"
-CAMINHO_PARA_CREDENCIAIS_DO_SHEETS = Path(__file__).parent.parent / "credenciais" / "chave-google-sheets.json"
+CAMINHO_PARA_CREDENCIAIS_DO_SHEETS = Path(__file__).parent.parent / "credenciais" / "chave-google.json"
 client_id = '6a98683078ddd386e7702e995261f604ddca8a72'
 client_secret = '64e8d1ad698d75e3e1f40e6d94773b11417b4580d961bbdb292dcd5c3b3a'
 url_padrao = 'https://api.bling.com.br/Api/v3'
 
-scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-credentials = ServiceAccountCredentials.from_json_keyfile_name(CAMINHO_PARA_CREDENCIAIS_DO_SHEETS, scope)
-client = gspread.authorize(credentials)
 
 
 def get_bling_access_token():
-    if CAMINHO_BLING_ACCESS_TOKEN.exists():
-        with open(CAMINHO_BLING_ACCESS_TOKEN, 'rb') as token_file:
-            bling_access_token_data = pickle.load(token_file)
+    bling_access_token_data = extratores.google_cloud_storage.ler_bling_token()
+
+    if bling_access_token_data:
+        '''with open(CAMINHO_BLING_ACCESS_TOKEN, "rb") as token_file:
+            bling_access_token_data = pickle.load(token_file)'''
         if datetime.now() < bling_access_token_data['expires_at']:
             print(f'O código de acesso armazenado ainda é válido.')
             return bling_access_token_data['access_token']
@@ -59,12 +61,11 @@ def get_bling_access_token():
             tokens["created_at"] = created_at
             tokens["expires_at"] = expires_at
             print(f'O novo código expira em: {tokens["expires_at"]}')
-            with open(CAMINHO_BLING_ACCESS_TOKEN, 'wb') as token_file:
-                pickle.dump(tokens, token_file)
+            carregadores.google_cloud_storage.salvar_bling_token(tokens)
 
             return tokens['access_token']
         else:
-            print(f"Failed to refresh token. Status code: {response.status_code}")
+            print(f"Falha ao atualizar token. Status: {response.status_code}")
             print(response.text)
 
     print('sem arquivo')
@@ -95,7 +96,7 @@ def pedidos_gerais():
 
     pedidos = []
     dt = datetime.now()
-    data_inicial = (dt - timedelta(days=60)).strftime('%Y-%m-%d')
+    data_inicial = (dt - timedelta(days=15)).strftime('%Y-%m-%d')
     data_alteracao_inicial = (dt - timedelta(days=1)).strftime('%Y-%m-%d')
     data_alteracao_final = (dt - timedelta(days=21)).strftime('%Y-%m-%d')
 
@@ -216,6 +217,9 @@ def ler_nota_fiscal(id_nota):
 
 
 def ler_planilha(url, id):
+    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(CAMINHO_PARA_CREDENCIAIS_DO_SHEETS, scope)
+    client = gspread.authorize(credentials)
     planilha = client.open_by_key(url).get_worksheet_by_id(id)
     dados = planilha.get("C6:F")
 
@@ -289,63 +293,15 @@ def ler_situacoes():
     return resposta
 
 
-def logisticas():
-    access_token = get_bling_access_token()
-
-    response = requests.get(url=f'{url_padrao}/logisticas',
-                            headers={
-                                'Authorization': f'Bearer {access_token}'
-                            }).json()
-
-    return response
-
-
-def logistica(id_logistica: int):
-    access_token = get_bling_access_token()
-
-    response = requests.get(url=f'{url_padrao}/logisticas/{id_logistica}',
-                            headers={
-                                'Authorization': f'Bearer {access_token}'
-                            }).json()
-
-    return response
-
-
-def servico_logistica(id_servico: int):
-    access_token = get_bling_access_token()
-
-    response = requests.get(url=f'{url_padrao}/logisticas/servicos/{id_servico}',
-                            headers={
-                                'Authorization': f'Bearer {access_token}'
-                            }).json()
-
-    return response
-
-
-def objeto_logistica(idobjeto: int):
-    access_token = get_bling_access_token()
-
-    response = requests.get(url=f'{url_padrao}/logisticas/objetos/{idobjeto}',
-                            headers={
-                                'Authorization': f'Bearer {access_token}'
-                            }).json()
-
-    return response
-
-
 if __name__ == '__main__':
     #ler_nota_fiscal(22900407270)
     '''alterar_nota_fiscal(23421513475,
                         '19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',
                         378688497)'''
     #ler_planilha('19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',378688497)
-    #pedidos_gerais()
-    obter_pedido(23658161995)
+    pedidos_gerais()
+    #obter_pedido(23693383629)
     #obter_produto(15813948283)
     #get_bling_access_token()
     #ler_situacoes()
     #produtos_gerais()
-    #logisticas()
-    objeto_logistica(15792407054)
-    #logistica(102663)
-    #servico_logistica(10067823520)

@@ -8,6 +8,7 @@ import io
 import os
 from pathlib import Path
 import pickle
+import json
 
 
 CAMINHO_JSON = str(Path(__file__).parent.parent /'credenciais'/'chave-google.json')
@@ -17,6 +18,7 @@ PARQUET_NOVOS_BLOB = 'pedidos_a_preencher.parquet'
 PARQUET_GERAL_BLOB = 'pedidos.parquet'
 BQ_DATASET = 'layer2'
 BQ_TABLE = 'pedidos'
+BLOB_TOKEN_BLING_JSON = 'bling_v3_access_token.json'
 
 
 def salvando_no_gcs(df_novo: pd.DataFrame, df_total: pd.DataFrame):
@@ -43,12 +45,11 @@ def salvando_no_gcs(df_novo: pd.DataFrame, df_total: pd.DataFrame):
 def salvar_bling_token(tokens):
     client = get_storage_client(CAMINHO_JSON)
     bucket = client.bucket(BUCKET)
-    blob = bucket.blob(BLOB_TOKEN_BLING)
+    blob = bucket.blob(BLOB_TOKEN_BLING_JSON)
 
-    buffer = io.BytesIO()
-    pickle.dump(tokens, buffer)
-    buffer.seek(0)
-    blob.upload_from_file(buffer, rewind=True)
+    data = json.dumps(tokens, default=str)
+
+    blob.upload_from_string(data, content_type="application/json")
 
     return 'Token salvo no GCS'
 

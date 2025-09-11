@@ -394,6 +394,8 @@ def multiplos_pedidos(dados):
                 print(f"Checkpoint atingido após {i} pedidos. Salvando progresso...")
                 novos_pedidos_df = pd.DataFrame(novos_pedidos)
                 pedidos_finais_parcial = pd.concat([pedidos_existentes, novos_pedidos_df], ignore_index=True)
+                carregadores.google_cloud_storage.salvando_no_gcs(novos_pedidos_df, pedidos_finais_parcial)
+                carregadores.google_cloud_storage.salvando_no_bigquery(pedidos_finais_parcial)
                 pedidos_finais_parcial.to_parquet(CACHE / 'pedidos.parquet', index=False, engine='pyarrow')
                 #pedidos_finais_parcial.to_excel(CACHE / 'pedidos.xlsx', index=False)
                 print("Checkpoint salvo com sucesso.")
@@ -402,6 +404,8 @@ def multiplos_pedidos(dados):
             print("Salvando progresso parcial antes de interromper.")
             novos_pedidos_df = pd.DataFrame(novos_pedidos)
             pedidos_finais_parcial = pd.concat([pedidos_existentes, novos_pedidos_df], ignore_index=True)
+            carregadores.google_cloud_storage.salvando_no_gcs(novos_pedidos_df, pedidos_finais_parcial)
+            carregadores.google_cloud_storage.salvando_no_bigquery(pedidos_finais_parcial)
             pedidos_finais_parcial.to_parquet(CACHE / 'pedidos.parquet', index=False, engine='pyarrow')
             #pedidos_finais_parcial.to_excel(CACHE / 'pedidos.xlsx', index=False)
             raise  # relevanta a exceção depois de salvar

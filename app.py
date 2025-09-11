@@ -1,5 +1,5 @@
 import base64
-
+from carregadores.google_cloud_storage import salvar_bling_token
 from flask import Flask, request
 from pathlib import Path
 from datetime import datetime, timedelta
@@ -7,6 +7,7 @@ import os
 import requests
 import secrets
 import pickle
+import json
 
 
 client_id = '6a98683078ddd386e7702e995261f604ddca8a72'
@@ -70,10 +71,12 @@ def redirect():
     tokens = response.json()
     created_at = datetime.now()
     expires_at = created_at + timedelta(seconds=21600)
-    tokens["created_at"] = created_at
-    tokens["expires_at"] = expires_at
-    with open(CAMINHO_PARA_ACCESS_TOKEN, 'wb') as token_file:
-        pickle.dump(tokens, token_file)
+    tokens["created_at"] = created_at.isoformat()
+    tokens["expires_at"] = expires_at.isoformat()
+    '''with open(CAMINHO_PARA_ACCESS_TOKEN, 'wb') as token_file:
+        pickle.dump(tokens, token_file)'''
+    tokens_json = json.dumps(tokens, ensure_ascii=False, indent=4)
+    salvar_bling_token(tokens_json)
 
     print(f'Resposta do token: {tokens}')
     access_token = tokens.get('access_token')

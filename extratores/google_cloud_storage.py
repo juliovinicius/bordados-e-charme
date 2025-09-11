@@ -1,10 +1,12 @@
 from google.cloud import storage
+from datetime import datetime
 import pandas as pd
 import io
 import os
 from pathlib import Path
 from google.auth import default as google_default_credentials
 import pickle
+import json
 
 BUCKET = 'bling_bcharm'
 PARQUET_GERAL_BLOB = 'pedidos.parquet'
@@ -64,19 +66,33 @@ def ler_arquivo_no_gcs():
     print(f"{len(df)} linhas carregadas do GCS.")
     return df
 
+
 def ler_bling_token():
     client = get_storage_client(CAMINHO_JSON)
     bucket = client.bucket(BUCKET)
-    blob = bucket.blob(BLOB_TOKEN_BLING)
+    blob = bucket.blob(BLOB_TOKEN_BLING_JSON)
 
     if not blob.exists():
         print('Arquivo de token de acesso não encontrado no bucket.')
         return
 
-    buffer = io.BytesIO()
+    '''buffer = io.BytesIO()
     blob.download_to_file(buffer)
     buffer.seek(0)
-    bling_access_token_data = pickle.load(buffer)
+    bling_access_token_data = pickle.load(buffer)'''
+
+    data = blob.download_as_text(encoding="utf-8")
+    bling_access_token_data = json.loads(data)
+
+    # Converte campos de data string -> datetime
+    if isinstance(bling_access_token_data.get("expires_at"), str):
+        bling_access_token_data["expires_at"] = datetime.fromisoformat(
+            bling_access_token_data["expires_at"]
+        )
+    if isinstance(bling_access_token_data.get("created_at"), str):
+        bling_access_token_data["created_at"] = datetime.fromisoformat(
+            bling_access_token_data["created_at"]
+        )
 
     return bling_access_token_data
 

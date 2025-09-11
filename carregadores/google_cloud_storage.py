@@ -47,9 +47,7 @@ def salvar_bling_token(tokens):
     bucket = client.bucket(BUCKET)
     blob = bucket.blob(BLOB_TOKEN_BLING_JSON)
 
-    data = json.dumps(tokens, default=str)
-
-    blob.upload_from_string(data, content_type="application/json")
+    blob.upload_from_string(tokens, content_type="application/json")
 
     return 'Token salvo no GCS'
 

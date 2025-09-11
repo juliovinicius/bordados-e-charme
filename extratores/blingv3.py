@@ -6,7 +6,7 @@ import gspread
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
 import time
-
+import json
 import carregadores.google_cloud_storage
 import extratores.google_cloud_storage
 
@@ -19,7 +19,6 @@ CAMINHO_PARA_CREDENCIAIS_DO_SHEETS = Path(__file__).parent.parent / "credenciais
 client_id = '6a98683078ddd386e7702e995261f604ddca8a72'
 client_secret = '64e8d1ad698d75e3e1f40e6d94773b11417b4580d961bbdb292dcd5c3b3a'
 url_padrao = 'https://api.bling.com.br/Api/v3'
-
 
 
 def get_bling_access_token():
@@ -49,7 +48,7 @@ def get_bling_access_token():
         }
         print(bling_access_token_data['refresh_token'])
 
-        url = 'https://www.bling.com.br/Api/v3/oauth/token'
+        url = 'https://api.bling.com.br/Api/v3/oauth/token'
 
         response = requests.post(url, headers=headers, data=data)
 
@@ -58,10 +57,11 @@ def get_bling_access_token():
             tokens = response.json()
             created_at = datetime.now()
             expires_at = created_at + timedelta(seconds=21600)
-            tokens["created_at"] = created_at
-            tokens["expires_at"] = expires_at
+            tokens["created_at"] = created_at.isoformat()
+            tokens["expires_at"] = expires_at.isoformat()
             print(f'O novo código expira em: {tokens["expires_at"]}')
-            carregadores.google_cloud_storage.salvar_bling_token(tokens)
+            tokens_json = json.dumps(tokens, ensure_ascii=False, indent=4)
+            carregadores.google_cloud_storage.salvar_bling_token(tokens_json)
 
             return tokens['access_token']
         else:

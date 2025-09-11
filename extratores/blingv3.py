@@ -36,7 +36,6 @@ def get_bling_access_token():
 
         credentials = f"{client_id}:{client_secret}"
         encoded_credentials = base64.b64encode(credentials.encode('utf-8')).decode('utf-8')
-        print(f'1º {credentials}\n\n2º {encoded_credentials}')
 
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -48,6 +47,7 @@ def get_bling_access_token():
             'grant_type': 'refresh_token',
             'refresh_token': bling_access_token_data['refresh_token']
         }
+        print(bling_access_token_data['refresh_token'])
 
         url = 'https://www.bling.com.br/Api/v3/oauth/token'
 

@@ -9,6 +9,7 @@ import pickle
 BUCKET = 'bling_bcharm'
 PARQUET_GERAL_BLOB = 'pedidos.parquet'
 BLOB_TOKEN_BLING = 'bling_v3_access_token.b'
+BLOB_TOKEN_BLING_JSON = 'bling_v3_access_token.json'
 CAMINHO_JSON = str(Path(__file__).parent.parent / 'credenciais'/ 'chave-google.json')
 
 

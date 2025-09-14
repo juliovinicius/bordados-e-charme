@@ -270,6 +270,25 @@ def pedido_unico_sem_componente(pedido):
     detalhes_do_pedido = extratores.blingv3.obter_pedido(dados_do_pedido['id'])
     itens = detalhes_do_pedido['data']['itens']
     print(f'O pedido atual possui {len(itens)} itens.')
+    volumes = detalhes_do_pedido['data']['transporte'].get('volumes', [])
+    if volumes:  # só entra se houver pelo menos um volume
+        id_volume = volumes[0]['id']
+        detalhes_do_transporte = extratores.blingv3.logistica_objeto(id_volume)
+        campos_detalhados_de_transporte = {
+            'id_rastreamento': id_volume,
+            'descricao_rastreamento': detalhes_do_transporte['data']['rastreamento'].get('descricao'),
+            'codigo_rastreamento': detalhes_do_transporte['data']['rastreamento'].get('codigo'),
+            'att_rastreamento': detalhes_do_transporte['data']['rastreamento'].get('ultimaAlteracao')
+        }
+    else:
+        # fallback para quando não há volumes
+        campos_detalhados_de_transporte = {
+            'id_rastreamento': None,
+            'descricao_rastreamento': None,
+            'codigo_rastreamento': None,
+            'att_rastreamento': None
+        }
+    #detalhes_do_transporte = extratores.blingv3.logistica_objeto(detalhes_do_pedido['data']['transporte']['volumes'][0]['id'])
     campos_detalhados = {
         'observações': detalhes_do_pedido['data']['observacoes'],
         'observações_internas': detalhes_do_pedido['data']['observacoesInternas'],
@@ -293,6 +312,7 @@ def pedido_unico_sem_componente(pedido):
     }
 
     pedido_completo = dados_do_pedido | campos_detalhados
+    pedido_completo = pedido_completo | campos_detalhados_de_transporte
 
     for item in itens:
         id_item = item['produto']['id']
@@ -336,8 +356,26 @@ def multiplos_pedidos(dados):
         pedidos_existentes['data_de_atualizacao'] = pd.to_datetime(
             pedidos_existentes['data_de_atualizacao']
         ).dt.date
+
+    # Definir todas as colunas obrigatórias
+    colunas_obrigatorias = [
+        'id', 'numero', 'data', 'numeroLoja', 'loja_id', 'loja',
+        'cpf_cliente', 'nome_cliente', 'situação',
+        'valor_dos_produtos', 'valor_do_pedido', 'data_de_atualizacao',
+        'observações', 'observações_internas', 'desconto',
+        'observações_de_pagamento', 'forma_de_pagamento', 'frete',
+        'rua', 'rua_numero', 'complemento', 'cidade', 'bairro', 'cep', 'uf',
+        'id_rastreamento', 'descricao_rastreamento', 'codigo_rastreamento', 'att_rastreamento',
+        'codigo_item', 'descricao_item', 'quantidade', 'unidade', 'valor_item'
+    ]
+
+    for col in colunas_obrigatorias:
+        if col not in pedidos_existentes.columns:
+            pedidos_existentes[col] = None
+
     novos_pedidos = []
     checkpoint = 500
+    cols_int = ['id_rastreamento', 'numero', 'cpf_cliente']
 
     for i, pedido in enumerate(dados, 1):
         #print(f"Executando pedido {i} de {len(dados)}, de número {pedido['numero']}")
@@ -394,6 +432,9 @@ def multiplos_pedidos(dados):
                 print(f"Checkpoint atingido após {i} pedidos. Salvando progresso...")
                 novos_pedidos_df = pd.DataFrame(novos_pedidos)
                 pedidos_finais_parcial = pd.concat([pedidos_existentes, novos_pedidos_df], ignore_index=True)
+                for col in cols_int:
+                    if col in pedidos_finais_parcial.columns:  # garante que a coluna existe
+                        pedidos_finais_parcial[col] = pedidos_finais_parcial[col].astype("Int64")
                 carregadores.google_cloud_storage.salvando_no_gcs(novos_pedidos_df, pedidos_finais_parcial)
                 carregadores.google_cloud_storage.salvando_no_bigquery(pedidos_finais_parcial)
                 pedidos_finais_parcial.to_parquet(CACHE / 'pedidos.parquet', index=False, engine='pyarrow')
@@ -404,6 +445,9 @@ def multiplos_pedidos(dados):
             print("Salvando progresso parcial antes de interromper.")
             novos_pedidos_df = pd.DataFrame(novos_pedidos)
             pedidos_finais_parcial = pd.concat([pedidos_existentes, novos_pedidos_df], ignore_index=True)
+            for col in cols_int:
+                if col in pedidos_finais_parcial.columns:  # garante que a coluna existe
+                    pedidos_finais_parcial[col] = pedidos_finais_parcial[col].astype("Int64")
             carregadores.google_cloud_storage.salvando_no_gcs(novos_pedidos_df, pedidos_finais_parcial)
             carregadores.google_cloud_storage.salvando_no_bigquery(pedidos_finais_parcial)
             pedidos_finais_parcial.to_parquet(CACHE / 'pedidos.parquet', index=False, engine='pyarrow')
@@ -413,6 +457,9 @@ def multiplos_pedidos(dados):
     # Concatenar os novos pedidos com os existentes
     novos_pedidos_df = pd.DataFrame(novos_pedidos)
     pedidos_finais = pd.concat([pedidos_existentes, novos_pedidos_df], ignore_index=True)
+    for col in cols_int:
+        if col in pedidos_finais.columns:  # garante que a coluna existe
+            pedidos_finais[col] = pedidos_finais[col].astype("Int64")
 
     #pedidos_finais.to_excel(CACHE/'pedidos.xlsx', index=False)
     pedidos_finais.to_parquet(CACHE/'pedidos.parquet', index=False, engine='pyarrow')

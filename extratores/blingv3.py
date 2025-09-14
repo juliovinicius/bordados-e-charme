@@ -293,15 +293,54 @@ def ler_situacoes():
     return resposta
 
 
+def logisticas():
+    access_token = get_bling_access_token()
+    resposta= requests.get(url=f'{url_padrao}/logisticas',
+                           headers={
+                               'Authorization': f'Bearer {access_token}'
+                           }).json()
+    return resposta
+
+
+def logistica(id_logistica):
+    access_token = get_bling_access_token()
+    resposta = requests.get(url=f'{url_padrao}/logisticas/{id_logistica}',
+                            headers={
+                                'Authorization': f'Bearer {access_token}'
+                            }).json()
+    return resposta
+
+
+def logistica_servico(id_servico):
+    access_token = get_bling_access_token()
+    resposta = requests.get(url=f'{url_padrao}/logisticas/servicos/{id_servico}',
+                            headers={
+                                'Authorization': f'Bearer {access_token}'
+                            }).json()
+    return resposta
+
+
+def logistica_objeto(id_objeto):
+    access_token = get_bling_access_token()
+    resposta = requests.get(url=f'{url_padrao}/logisticas/objetos/{id_objeto}',
+                            headers={
+                                'Authorization': f'Bearer {access_token}'
+                            }).json()
+    return resposta
+
+
 if __name__ == '__main__':
     #ler_nota_fiscal(22900407270)
     '''alterar_nota_fiscal(23421513475,
                         '19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',
                         378688497)'''
     #ler_planilha('19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',378688497)
-    pedidos_gerais()
-    #obter_pedido(23693383629)
+    #pedidos_gerais()
+    obter_pedido(23836457465)
     #obter_produto(15813948283)
     #get_bling_access_token()
     #ler_situacoes()
     #produtos_gerais()
+    #logisticas()
+    #logistica(102663)
+    logistica_objeto(15814144054)

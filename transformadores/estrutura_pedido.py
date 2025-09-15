@@ -417,9 +417,10 @@ def multiplos_pedidos(dados):
                 if pedido_existente['cpf_cliente'] != cpf_cliente:
                     diferenças.append(f"cpf_cliente: {pedido_existente['cpf_cliente']} → {cpf_cliente}")
 
-                if diferenças:
+                if diferenças or situacao in ["Atendido", "Verificado"]:
                     print(f"Executando pedido {i} de {len(dados)}, de número {pedido['numero']}\n"
-                          f"Pedido {id_pedido} foi atualizado. Diferenças detectadas:")
+                          f"Pedido {id_pedido} foi atualizado ou a situação está em ['Atendido', 'Verificado'],"
+                          f" buscando dados de entrega. Diferenças detectadas:")
                     for diff in diferenças:
                         print(f"  - {diff}")
                     pedidos_existentes = pedidos_existentes[pedidos_existentes['id'] != id_pedido]

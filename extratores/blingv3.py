@@ -343,4 +343,4 @@ if __name__ == '__main__':
     #produtos_gerais()
     #logisticas()
     #logistica(102663)
-    logistica_objeto(15814144054)
+    #logistica_objeto(15814144054)

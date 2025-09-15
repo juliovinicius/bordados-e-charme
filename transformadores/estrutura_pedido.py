@@ -378,12 +378,10 @@ def multiplos_pedidos(dados):
     cols_int = ['id_rastreamento', 'numero', 'cpf_cliente']
 
     for i, pedido in enumerate(dados, 1):
-        #print(f"Executando pedido {i} de {len(dados)}, de número {pedido['numero']}")
 
         try:
             # Checar se o pedido já existe e comparar data
             id_pedido = pedido['id']
-            data_atualizacao = datetime.now().date()  # até o dia
 
             filtro_existente = pedidos_existentes[pedidos_existentes['id'] == id_pedido]
             if filtro_existente.empty:
@@ -393,7 +391,6 @@ def multiplos_pedidos(dados):
                 novos_pedidos.extend(pedidos_do_pedido)
                 time.sleep(0.1)
             else:
-                data_existente = pd.to_datetime(filtro_existente['data_de_atualizacao'].iloc[0]).date()
                 #valores atuais do pedido pela API
                 numero = pedido['numero']
                 total_produtos = pedido['totalProdutos']
@@ -417,10 +414,9 @@ def multiplos_pedidos(dados):
                 if pedido_existente['cpf_cliente'] != cpf_cliente:
                     diferenças.append(f"cpf_cliente: {pedido_existente['cpf_cliente']} → {cpf_cliente}")
 
-                if diferenças or situacao in ["Atendido", "Verificado"]:
+                if diferenças:
                     print(f"Executando pedido {i} de {len(dados)}, de número {pedido['numero']}\n"
-                          f"Pedido {id_pedido} foi atualizado ou a situação está em ['Atendido', 'Verificado'],"
-                          f" buscando dados de entrega. Diferenças detectadas:")
+                          f"Pedido {id_pedido} foi atualizado. Diferenças detectadas:")
                     for diff in diferenças:
                         print(f"  - {diff}")
                     pedidos_existentes = pedidos_existentes[pedidos_existentes['id'] != id_pedido]
@@ -439,7 +435,6 @@ def multiplos_pedidos(dados):
                 carregadores.google_cloud_storage.salvando_no_gcs(novos_pedidos_df, pedidos_finais_parcial)
                 carregadores.google_cloud_storage.salvando_no_bigquery(pedidos_finais_parcial)
                 pedidos_finais_parcial.to_parquet(CACHE / 'pedidos.parquet', index=False, engine='pyarrow')
-                #pedidos_finais_parcial.to_excel(CACHE / 'pedidos.xlsx', index=False)
                 print("Checkpoint salvo com sucesso.")
         except Exception as e:
             print(f"Erro ao processar o pedido {pedido.get('id', 'sem id')}: {str(e)}")
@@ -452,17 +447,15 @@ def multiplos_pedidos(dados):
             carregadores.google_cloud_storage.salvando_no_gcs(novos_pedidos_df, pedidos_finais_parcial)
             carregadores.google_cloud_storage.salvando_no_bigquery(pedidos_finais_parcial)
             pedidos_finais_parcial.to_parquet(CACHE / 'pedidos.parquet', index=False, engine='pyarrow')
-            #pedidos_finais_parcial.to_excel(CACHE / 'pedidos.xlsx', index=False)
-            raise  # relevanta a exceção depois de salvar
+            raise
 
     # Concatenar os novos pedidos com os existentes
     novos_pedidos_df = pd.DataFrame(novos_pedidos)
     pedidos_finais = pd.concat([pedidos_existentes, novos_pedidos_df], ignore_index=True)
     for col in cols_int:
-        if col in pedidos_finais.columns:  # garante que a coluna existe
+        if col in pedidos_finais.columns:
             pedidos_finais[col] = pedidos_finais[col].astype("Int64")
 
-    #pedidos_finais.to_excel(CACHE/'pedidos.xlsx', index=False)
     pedidos_finais.to_parquet(CACHE/'pedidos.parquet', index=False, engine='pyarrow')
 
     return novos_pedidos_df, pedidos_finais

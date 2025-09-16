@@ -97,8 +97,8 @@ def pedidos_gerais():
     pedidos = []
     dt = datetime.now()
     data_inicial = (dt - timedelta(days=15)).strftime('%Y-%m-%d')
-    data_alteracao_inicial = (dt - timedelta(days=1)).strftime('%Y-%m-%d')
-    data_alteracao_final = (dt - timedelta(days=21)).strftime('%Y-%m-%d')
+    data_alteracao_inicial = (dt - timedelta(days=5)).strftime('%Y-%m-%d')
+    data_alteracao_final = (dt - timedelta(days=3)).strftime('%Y-%m-%d')
 
     for i in count(1, step=1):
         resposta = requests.get(url=f'{url_padrao}/pedidos/vendas',
@@ -109,7 +109,7 @@ def pedidos_gerais():
                                    'pagina': f'{i}',
                                    'dataInicial': data_inicial,
                                    'dataAlteracaoInicial': data_alteracao_inicial
-                                   #,'dataAlteracaoFinal': data_alteracao_final
+                                   ,'dataAlteracaoFinal': data_alteracao_final
                                }).json()
 
         pedidos += resposta['data']
@@ -311,6 +311,15 @@ def logistica(id_logistica):
     return resposta
 
 
+def logistica_servicos():
+    access_token = get_bling_access_token()
+    resposta = requests.get(url=f'{url_padrao}/logisticas/servicos',
+                            headers={
+                                'Authorization': f'Bearer {access_token}'
+                            }).json()
+    return resposta
+
+
 def logistica_servico(id_servico):
     access_token = get_bling_access_token()
     resposta = requests.get(url=f'{url_padrao}/logisticas/servicos/{id_servico}',
@@ -336,11 +345,12 @@ if __name__ == '__main__':
                         378688497)'''
     #ler_planilha('19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',378688497)
     #pedidos_gerais()
-    obter_pedido(23836457465)
+    obter_pedido(23834975673)
     #obter_produto(15813948283)
     #get_bling_access_token()
     #ler_situacoes()
     #produtos_gerais()
     #logisticas()
     #logistica(102663)
+    #logistica_servicos()
     #logistica_objeto(15814144054)

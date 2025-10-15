@@ -274,11 +274,15 @@ def pedido_unico_sem_componente(pedido):
     if volumes:  # só entra se houver pelo menos um volume
         id_volume = volumes[0]['id']
         detalhes_do_transporte = extratores.blingv3.logistica_objeto(id_volume)
+        rastreamento = (
+            detalhes_do_transporte.get('data', {}).get('rastreamento', {})
+            if isinstance(detalhes_do_transporte, dict) else {}
+        )
         campos_detalhados_de_transporte = {
             'id_rastreamento': id_volume,
-            'descricao_rastreamento': detalhes_do_transporte['data']['rastreamento'].get('descricao', None),
-            'codigo_rastreamento': detalhes_do_transporte['data']['rastreamento'].get('codigo', None),
-            'att_rastreamento': detalhes_do_transporte['data']['rastreamento'].get('ultimaAlteracao', None)
+            'descricao_rastreamento': rastreamento.get('descricao'),
+            'codigo_rastreamento': rastreamento.get('codigo'),
+            'att_rastreamento': rastreamento.get('ultimaAlteracao')
         }
     else:
         # fallback para quando não há volumes

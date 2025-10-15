@@ -345,7 +345,7 @@ if __name__ == '__main__':
                         378688497)'''
     #ler_planilha('19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',378688497)
     #pedidos_gerais()
-    obter_pedido(23834975673)
+    #obter_pedido(23973016379)
     #obter_produto(15813948283)
     #get_bling_access_token()
     #ler_situacoes()
@@ -353,4 +353,4 @@ if __name__ == '__main__':
     #logisticas()
     #logistica(102663)
     #logistica_servicos()
-    #logistica_objeto(15814144054)
+    logistica_objeto(15829789615)

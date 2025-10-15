@@ -276,9 +276,9 @@ def pedido_unico_sem_componente(pedido):
         detalhes_do_transporte = extratores.blingv3.logistica_objeto(id_volume)
         campos_detalhados_de_transporte = {
             'id_rastreamento': id_volume,
-            'descricao_rastreamento': detalhes_do_transporte['data']['rastreamento'].get('descricao'),
-            'codigo_rastreamento': detalhes_do_transporte['data']['rastreamento'].get('codigo'),
-            'att_rastreamento': detalhes_do_transporte['data']['rastreamento'].get('ultimaAlteracao')
+            'descricao_rastreamento': detalhes_do_transporte['data']['rastreamento'].get('descricao', None),
+            'codigo_rastreamento': detalhes_do_transporte['data']['rastreamento'].get('codigo', None),
+            'att_rastreamento': detalhes_do_transporte['data']['rastreamento'].get('ultimaAlteracao', None)
         }
     else:
         # fallback para quando não há volumes

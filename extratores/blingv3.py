@@ -97,8 +97,8 @@ def pedidos_gerais():
     pedidos = []
     dt = datetime.now()
     data_inicial = (dt - timedelta(days=15)).strftime('%Y-%m-%d')
-    data_alteracao_inicial = (dt - timedelta(days=5)).strftime('%Y-%m-%d')
-    data_alteracao_final = (dt - timedelta(days=3)).strftime('%Y-%m-%d')
+    data_alteracao_inicial = (dt - timedelta(days=3)).strftime('%Y-%m-%d')
+    #data_alteracao_final = (dt - timedelta(days=3)).strftime('%Y-%m-%d')
 
     for i in count(1, step=1):
         resposta = requests.get(url=f'{url_padrao}/pedidos/vendas',
@@ -109,7 +109,7 @@ def pedidos_gerais():
                                    'pagina': f'{i}',
                                    'dataInicial': data_inicial,
                                    'dataAlteracaoInicial': data_alteracao_inicial
-                                   ,'dataAlteracaoFinal': data_alteracao_final
+                                   #,'dataAlteracaoFinal': data_alteracao_final
                                }).json()
 
         pedidos += resposta['data']

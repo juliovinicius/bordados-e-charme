@@ -131,7 +131,7 @@ def conta_a_pagar(id_conta, apikey):
 
 if __name__ == '__main__':
     #contas_a_receber(apikey6)
-    #conta_a_receber('942035553', apikey2)
+    conta_a_receber('942035553', apikey2)
     #info_conta(apikey1)
     #contas_a_pagar(apikey2)
-    conta_a_pagar('942035553', apikey3)
+    #conta_a_pagar('942035553', apikey3)

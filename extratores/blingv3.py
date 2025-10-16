@@ -96,7 +96,7 @@ def pedidos_gerais():
 
     pedidos = []
     dt = datetime.now()
-    data_inicial = (dt - timedelta(days=16)).strftime('%Y-%m-%d')
+    data_inicial = (dt - timedelta(days=15)).strftime('%Y-%m-%d')
     data_alteracao_inicial = (dt - timedelta(days=2)).strftime('%Y-%m-%d')
     #data_alteracao_final = (dt - timedelta(days=3)).strftime('%Y-%m-%d')
 

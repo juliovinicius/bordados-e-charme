@@ -66,7 +66,7 @@ def get_bling_access_token():
             return tokens['access_token']
         else:
             print(f"Falha ao atualizar token. Status: {response.status_code}")
-            print(response.text)
+            print(f'Texto do erro: {response.text}')
 
     print('sem arquivo')
     return 'sem arquivo'

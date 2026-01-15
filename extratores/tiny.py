@@ -1,9 +1,12 @@
 import time
+
+import pandas as pd
 from dateutil.relativedelta import relativedelta
 from calendar import monthrange
 import requests
 from itertools import count
 from datetime import date
+from pathlib import Path
 
 apikey1 = 'd2713e9ab254bee05f94f7d72a2cdc23d2df71e0370aefde2fd7b0b8b1c06338'
 apikey2 = 'be5001dee4cad6ed552b50096dd022b132bf209417c5469b8360f395272cd74c'
@@ -20,11 +23,11 @@ apis = [apikey1,
 hoje = date.today()
 
 # Data inicial: 1º dia de 3 meses atrás
-data_ini = (hoje.replace(day=1) - relativedelta(months=3))
+data_ini = (hoje.replace(day=1) - relativedelta(months=10))
 data_ini_emissao = data_ini.strftime('%d/%m/%Y')
 
 # Data final: último dia de 4 meses à frente
-data_fim = hoje.replace(day=1) + relativedelta(months=4)
+data_fim = hoje.replace(day=1) + relativedelta(months=1)
 ultimo_dia_fim = monthrange(data_fim.year, data_fim.month)[1]
 data_fim_emissao = data_fim.replace(day=ultimo_dia_fim).strftime('%d/%m/%Y')
 
@@ -129,9 +132,21 @@ def conta_a_pagar(id_conta, apikey):
     return conta
 
 
+def ajuste_esporadico():
+    arquivo = pd.read_parquet(path=str(Path(__file__).parent.parent/'esporadico'/'contas.parquet'))
+    if 'NRO_DOCUMENTO' not in arquivo.columns:
+        idx_tipo = arquivo.columns.get_loc('TIPO')
+        arquivo.insert(idx_tipo + 1, 'NRO_DOCUMENTO', None)
+
+    arquivo.to_parquet(path=str(Path(__file__).parent.parent/'esporadico'/'contas.parquet'), index=False)
+
+    return arquivo
+
+
 if __name__ == '__main__':
-    #contas_a_receber(apikey6)
-    conta_a_receber('942035553', apikey2)
+    contas_a_receber(apikey5, data_ini_emissao, data_fim_emissao)
+    #conta_a_receber('933314994', apikey5)
     #info_conta(apikey1)
     #contas_a_pagar(apikey2)
     #conta_a_pagar('942035553', apikey3)
+    #ajuste_esporadico()

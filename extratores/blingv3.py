@@ -97,7 +97,7 @@ def pedidos_gerais():
     pedidos = []
     dt = datetime.now()
     data_inicial = (dt - timedelta(days=15)).strftime('%Y-%m-%d')
-    data_alteracao_inicial = (dt - timedelta(days=2)).strftime('%Y-%m-%d')
+    data_alteracao_inicial = (dt - timedelta(days=5)).strftime('%Y-%m-%d')
     #data_alteracao_final = (dt - timedelta(days=3)).strftime('%Y-%m-%d')
 
     for i in count(1, step=1):
@@ -345,7 +345,7 @@ if __name__ == '__main__':
                         378688497)'''
     #ler_planilha('19-miGGqp-kjINZeTd0ZClZFfxuCSBbyXgbb9ORW9be4',378688497)
     #pedidos_gerais()
-    #obter_pedido(23973016379)
+    obter_pedido(23973016379)
     #obter_produto(15813948283)
     #get_bling_access_token()
     #ler_situacoes()
@@ -353,4 +353,4 @@ if __name__ == '__main__':
     #logisticas()
     #logistica(102663)
     #logistica_servicos()
-    logistica_objeto(15829789615)
+    #logistica_objeto(15829789615)

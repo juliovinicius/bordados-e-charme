@@ -353,7 +353,9 @@ def multiplos_pedidos(dados):
         pedidos_existentes = pd.DataFrame(columns=['id', 'data_de_atualizacao'])
         print("Nenhum arquivo de pedidos encontrado. Começando do zero.")'''
 
-    pedidos_existentes = extratores.google_cloud_storage.ler_arquivo_no_gcs()
+    pedidos_existentes = extratores.google_cloud_storage.ler_arquivo_no_gcs(
+        bucket='bling_bcharm',
+        blob='pedidos.parquet')
 
     # Normalizar datas para apenas o dia, se houver pedidos existentes
     if not pedidos_existentes.empty:

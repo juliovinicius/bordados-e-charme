@@ -49,10 +49,10 @@ def get_storage_client(caminho_json: str = None):
     return storage.Client()
 
 
-def ler_arquivo_no_gcs():
+def ler_arquivo_no_gcs(bucket, blob):
     client = get_storage_client(CAMINHO_JSON)
-    bucket = client.bucket(BUCKET)
-    blob = bucket.blob(PARQUET_GERAL_BLOB)
+    bucket = client.bucket(bucket)
+    blob = bucket.blob(blob)
 
     if not blob.exists():
         print("Nenhum arquivo encontrado no GCS. Retornando DataFrame vazio.")
@@ -96,3 +96,7 @@ def ler_bling_token():
 
     return bling_access_token_data
 
+
+if __name__ == '__main__':
+    base = ler_arquivo_no_gcs(bucket='contas-bcharm', blob='contas.parquet')
+    base.to_excel('base.xlsx', index=False)

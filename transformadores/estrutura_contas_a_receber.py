@@ -44,7 +44,7 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
                                      row['RAZAO_SOCIAL']): {
                 'saldo': row['SALDO'],
                 'data_leitura': row['DATA_LEITURA'],
-                'vencimento': pd.to_datetime(row['VENCIMENTO'],format='%d/%m/%Y'),
+                'vencimento': pd.to_datetime(row['VENCIMENTO']),  #,format='%d/%m/%Y'
                 'backup': 'sim' if row['HISTÓRICO'] == 'BACKUP' else 'não'
             } for _, row in parquet_existente.iterrows()}
         except FileNotFoundError:
@@ -91,11 +91,11 @@ def multiplas_contas(apikey, caminho_parquet=CAMINHO_ARQUIVO_PARQUET):
     dados_contas_a_receber, razao_social, apikey, tipo = dados_recebimento
 
     contas = []
-    limite = 601
-    pausa = 3
+    limite = 301
+    pausa = 4
     i, j = 1, 1
     data_referencia = pd.Timestamp(date.today().replace(day=1)) - pd.DateOffset(months=1)
-    data_referencia_futura = pd.Timestamp(date.today().replace(day=1)) + pd.DateOffset(months=3)
+    data_referencia_futura = pd.Timestamp(date.today().replace(day=1)) + pd.DateOffset(months=1)
     data_atual = pd.Timestamp(date.today())
 
     print('Iniciando leitura de contas a receber.')
@@ -295,8 +295,25 @@ def multiplas_razoes_sociais(apis:list, caminho_parquet=CAMINHO_ARQUIVO_PARQUET)
         by=['RAZAO_SOCIAL', 'TIPO', 'LIQUIDAÇÃO', 'VENCIMENTO'],
         ascending=[True, True, False, False]
     )
+
+    colunas_data = ['EMISSÃO', 'VENCIMENTO', 'LIQUIDAÇÃO', 'DATA_LEITURA']
+
+    for col in colunas_data:
+        todas_as_contas[col] = pd.to_datetime(
+            todas_as_contas[col],
+            errors='coerce'
+        )
+
     todas_as_contas.to_parquet(CAMINHO_ARQUIVO_PARQUET, index=False)
     print(f'Dataframe atualizado em {CAMINHO_ARQUIVO_PARQUET}.')
+
+    print(todas_as_contas.dtypes)
+
+    print(
+        todas_as_contas['EMISSÃO']
+        .apply(lambda x: type(x))
+        .value_counts()
+    )
 
     return todas_as_contas
 
@@ -307,7 +324,14 @@ if __name__ == '__main__':
     apikey3 = '6f646fa987f2b6fa2bb8fd50024eba933c6befc0c0d37b395388b4107f34440b'
     apikey4 = '882086a25329f3c81061baa3159f521df591d629aa4a57651b87f6ab180dd6b4'
     apikey5 = 'dede5c75ea14c62541f2896a93b323baac894cb5655957bb6770cae4037f7319'
-    apikey6 = '3d4c4e3432ae1d59fdf6671d195efaee373f5d5f6105440bbfdaf49f52429299'
-    apis = [apikey1, apikey3, apikey4, apikey5, apikey6, apikey2]
-    #multiplas_contas(apikey2)
+    # apikey6 = '3d4c4e3432ae1d59fdf6671d195efaee373f5d5f6105440bbfdaf49f52429299'
+    apis = [
+        apikey1,
+        apikey3,
+        apikey4,
+        apikey5,
+        apikey2
+    ]
+    # apis = [apikey4]
+    # multiplas_contas(apikey2)
     multiplas_razoes_sociais(apis)
